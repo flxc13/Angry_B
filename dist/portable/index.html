@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4b544">
+  <title>憤怒的邦基 · ISSUE 04 / ENDLESS REMIX · 無盡挑戰與十五關戰役</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./art.js" defer></script>
+  <script src="./audio.js" defer></script>
+  <script src="./enemies.js" defer></script>
+  <script src="./levels.js" defer></script>
+  <script src="./rogue.js" defer></script>
+  <script src="./game.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" id="brandHome" aria-label="返回標題"><span class="brand-icon">B!</span><span>憤怒的邦基<small>ANGRY BONGI</small></span></a>
+    <nav aria-label="遊戲選單">
+      <span class="offline"><i></i> 完全離線 · 隨時出擊</span>
+      <button class="icon-button" id="helpBtn" aria-label="操作教學">？<span>玩法</span></button>
+      <button class="icon-button" id="bestiaryBtn" aria-label="敵人圖鑑" aria-haspopup="dialog" aria-controls="bestiaryDialog">◎<span>敵人圖鑑</span></button>
+      <button class="icon-button" id="settingsBtn" aria-label="遊戲設定">⚙<span>設定</span></button>
+      <button class="icon-button" id="soundBtn" aria-label="開啟音效" aria-pressed="false">♪<span>音效關</span></button>
+      <button class="icon-button" id="musicBtn" aria-label="背景音樂" aria-pressed="true" title="背景音樂">♫<span>背景音樂</span></button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="homeScreen" class="home-screen">
+      <div class="hero-copy">
+        <div class="eyebrow issue-tag">ISSUE 03 / OVERDRIVE</div>
+        <h1>今日唔撚忍。<br><em>邦基，出擊！</em></h1>
+        <p class="hero-description"><strong>四大場景，十五關全面出擊。</strong><br>由公園、球場到霓虹街頭，再衝上太空，撞撚晒佢哋！<br>新增十關、六種敵人，原創車窗彈射再升級。</p>
+        <div class="theme-heading">揀個場景 <span>CHOOSE YOUR SCENE ↘</span></div>
+        <div class="theme-picker" role="group" aria-label="選擇漫畫場景">
+          <button type="button" data-theme="park" aria-pressed="false">維多利亞公園</button>
+          <button type="button" data-theme="court" aria-pressed="false">PICKLEBALL 球場</button>
+          <button type="button" data-theme="bangla" class="active" aria-pressed="true">布吉 Bangla Street</button>
+          <button type="button" data-theme="space" aria-pressed="false">富林太空站</button>
+        </div>
+        <p class="theme-note">四款主題自由切換 · 共十五關（新增十關）· 出窗玩法照舊，粗口加料</p>
+        <div class="hero-actions"><button class="button primary large" id="playBtn">開車，出撚發！ <span>↗</span></button><button class="text-button" id="chooseBtn">選擇關卡 <span>→</span></button></div>
+        <div class="hero-facts"><span><b>04</b> 漫畫場景</span><span><b>15</b> 原創關卡</span><span><b>06</b> 敵人種類</span></div>
+        <div class="small-note">滑鼠 / 觸控皆可 · 無需連線 · 無需安裝</div>
+        <div class="rogue-panel">
+          <div class="eyebrow">ISSUE 04 / ENDLESS REMIX</div><h2>無盡街頭 · 越打越難</h2>
+          <p>6 發起步，每波 +3（最多 8）· 每 5 波精英／10 波機械頭目。事件固定 28%，有好有壞。</p>
+          <label>起始流派 <select id="rogueStart"><option value="explosive">爆破 · 空中引爆</option><option value="giant">巨人 · 重量撞擊</option><option value="split">分裂 · 多彈夾擊</option><option value="speed">極速 · 二段加速</option></select></label>
+          <label>本機種子 <input id="rogueSeed" maxlength="64" value="BONGI" aria-label="挑戰種子"></label>
+          <label>起始彈藥 <select id="rogueAmmo"><option>4</option><option>5</option><option selected>6</option><option>7</option><option>8</option></select></label>
+          <div class="rogue-actions"><button class="button primary" id="endlessBtn">無盡出擊 ↗</button><button class="button secondary" id="dailyBtn">每日挑戰（UTC）</button><button class="button secondary" id="rogueResume">繼續波次存檔</button></div>
+          <label>解鎖外觀 <select id="rogueCosmetic"><option value="classic">經典</option><option value="mint">薄荷光環 · 清 5 波</option><option value="gold">金色光環 · 清 10 波</option></select></label>
+          <p id="rogueRecords" role="status"></p>
+          <small>每日固定 6 發。成績只存本機，按種子／流派／初始彈藥分榜，非防作弊排行榜。新挑戰會取代舊存檔。</small>
+        </div>
+      </div>
+      <div class="hero-art" role="group" aria-label="漫畫場景預覽：布吉 Bangla Street。可選擇公園、球場、Bangla Street 或太空站。">
+        <canvas id="heroCanvas" width="1280" height="720" role="img" aria-label="邦基原創漫畫場景，使用場景按鈕切換插畫">邦基的四大漫畫場景預覽。</canvas>
+        <!-- Retained for the existing portrait loading and fallback hooks; rendered on canvas. -->
+        <div class="hero-bongi" aria-hidden="true"><img src="./resource/邦基.jpeg" alt="邦基主角照片"><span class="fallback-face" hidden>原創暫代<br>邦基 ◉‿◉</span></div>
+        <div class="art-caption"><span>現場直擊 / <output id="heroThemeLabel" aria-live="polite">布吉 Bangla Street</output></span><span>100% 邦基 · 0% 冷靜 · 粗口橫飛 ↗</span></div>
+      </div>
+      <div class="how-strip"><div><span class="step-number">01</span><p><b>拉住邦基</b><small>向後拖曳，決定力道，唔好柒拉</small></p><span class="step-arrow">↗</span></div><div><span class="step-number">02</span><p><b>放手，飛出去</b><small>旋轉、毒霧，仲有少少狗屎運</small></p><span class="step-arrow">↗</span></div><div><span class="step-number">03</span><p><b>一個都唔好留</b><small>撞冧晒所有目標就贏撚咗</small></p><span class="step-arrow">✓</span></div></div>
+    </section>
+
+    <section id="levelScreen" class="level-screen" hidden>
+      <div class="section-heading"><div><div class="eyebrow">FIFTEEN LEVELS / SIX ENEMY KINDS / FOUR SCENES</div><h2>下一站，撞邊個柒頭？</h2><p>十五關挑戰（新增十關）、六種敵人、四款漫畫場景。所有關卡任砌，唔使客氣。</p></div><button class="button secondary" id="levelsBack">← 返回</button></div>
+      <div id="levelCards" class="level-cards"></div>
+    </section>
+
+    <section id="gameScreen" class="game-screen" hidden>
+      <div class="game-top"><div class="level-info"><span id="levelNumber" class="level-badge">01</span><div><small id="levelArea">街角試車</small><h2 id="levelTitle">初次出窗</h2></div></div><div class="stats"><div><small>本關分數</small><b id="scoreValue">0</b></div><div><small>剩餘發射</small><b id="shotsValue">● ● ● ●</b></div><div><small>剩餘目標</small><b id="targetsValue">2</b></div></div><div class="game-controls"><button class="square-button" id="restartBtn" aria-label="重新開始本關">↻</button><button class="square-button" id="pauseBtn" aria-label="暫停遊戲">Ⅱ</button></div></div>
+      <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="gameCanvas" width="1280" height="720" aria-label="拖住車窗裡的邦基向左下拉，放開發射。亦可用方向鍵瞄準，空白鍵發射。" tabindex="0"></canvas>
+        <div class="scene-tag"><i></i><span id="sceneTag">薄荷街 · 晴天適宜出擊</span></div>
+        <div class="rage-hud" role="group" aria-label="怒氣表，只作視覺效果，不影響彈射力度">
+          <span class="rage-caption">怒氣表 · 視覺效果</span>
+          <div class="rage-track" aria-hidden="true"><i id="rageFill"></i></div>
+          <b id="rageLabel">0%</b>
+        </div>
+        <div class="event-toast" id="eventToast" role="status" hidden><span id="eventIcon">!</span><div><b id="eventTitle"></b><small id="eventDetail"></small></div></div>
+        <div class="subtitle" id="subtitle" aria-live="polite" hidden></div>
+        <div class="aim-hint" id="aimHint"><span>↙</span> 拉住邦基，往後拖，放撚手！</div>
+        <div class="power" id="powerMeter" hidden><small>彈射力度</small><div><i id="powerFill"></i></div><b id="powerValue">0%</b></div>
+      </div>
+      <div class="game-bottom"><span><i class="green-dot"></i><span id="statusText">準備好就拉弓，成條街嘅街坊都等緊你發爛。</span></span><div class="scene-actions"><button class="text-button" id="changeSceneBtn" title="依序切換公園、球場、夜街、太空站；不影響物理">換個背景 ↻</button><button class="text-button" id="gameLevelsBtn">關卡地圖 ↗</button></div></div>
+      <p class="keyboard-note">拖曳角色放手發射 · 方向鍵調整 / 空白鍵發射 · Esc 暫停 · R 重試 · 綠霧都可以削弱敵人，臭到佢哋腳軟</p>
+      <div id="enemyRoster" role="group" aria-label="本關敵人與能力"></div>
+      <div class="rogue-panel" id="rogueHud" hidden><b id="rogueStatus"></b><button class="button primary" id="skillBtn">技能 · E / 空白鍵</button><p id="rogueBuild"></p><small>每發可用技能；升級可混合其他流派。只存波次起點／選路階段，中途離開會重玩該波。R 重開同一波。</small></div>
+    </section>
+  </main>
+  <footer><span>ANGRY BONGI <b>·</b> 一場唔太冷靜嘅街頭小冒險，粗口橫飛</span><span>ISSUE 03 / OVERDRIVE <b>✦</b> 完全離線</span></footer>
+
+  <dialog id="helpDialog"><button class="dialog-close" data-close aria-label="關閉教學">×</button><div class="eyebrow">HOW TO BONGI</div><h2>一拉、一放、一場大混亂，仆街啦！</h2><ol class="instructions"><li><b>抓住車窗內的邦基</b><p>向左下拖動蓄力；白色虛線預覽路線。放開就發射，唔好射失呀柒頭。手機建議橫向遊玩。</p></li><li><b>撞敵人，也撞支架</b><p>木樑、玻璃、冧落嚟嘅結構都可以冧低目標。飛行留低嘅綠霧會短暫削弱埋靠近嘅敵人，臭到佢哋暈。</p></li><li><b>善用每一次出窗</b><p>最後一發嗰陣，差佬會喺路邊等緊你。全部目標冧低即過關；用晒啲發射就會俾人禮貌咁帶走，丟架。</p></li></ol><div class="notice">戰役保留可調事件機率，另加逆風、重力、薄霧、助推、護罩及補給。無盡／每日固定 28%，不含強制 MISS 或全畫布模糊。火車只會局部撞擊和爆破，不再自動清場。</div><p class="dialog-small">方向鍵：調整力度 / 仰角。空白鍵：發射；無盡飛行中 E / 空白鍵／技能按鈕：技能。Esc / P：暫停。R：重試波次起點。無盡每波揀升級及普通／精英／補給路線。所有配角均為成年卡通角色；小販只針對你嘅遊戲技術吐槽，唔係針對你個人，唔好嬲。</p><button class="button primary full" data-close>明白，準備出撚窗！</button></dialog>
+  <dialog id="bestiaryDialog" aria-label="敵人圖鑑">
+    <button class="dialog-close" data-close aria-label="關閉敵人圖鑑">×</button>
+    <div class="eyebrow">CAMPAIGN + ENDLESS / KNOW YOUR ENEMY</div>
+    <h2>敵人圖鑑</h2>
+    <p>戰役六種敵人，無盡另加護盾兵、維修兵、指揮官及機械核心。圖鑑 HP 是基礎值，無盡會隨波次增加。</p>
+    <div id="enemyCards"></div>
+    <button class="button primary full" data-close>明白，準備砌佢！</button>
+  </dialog>
+  <dialog id="settingsDialog" aria-label="遊戲設定">
+    <button class="dialog-close" data-close aria-label="關閉設定">×</button>
+    <div class="eyebrow">A LITTLE CHAOS</div>
+    <h2>混亂程度，由你話事。</h2>
+    <label class="setting-label" for="eventChance">每次發射的事件機率 <output id="chanceOutput" for="eventChance">24%</output></label>
+    <input id="eventChance" type="range" min="0" max="100" step="1" value="24">
+    <p id="chanceExplanation">戰役可調整事件機率；無盡／每日固定 28%，不受設定影響。火車只造成近距離撞擊和有限爆破，不會自動清場。</p>
+    <label class="toggle-row"><span><b>輕量特效</b><small>優先覆蓋炸屏演出：凍結場景環境動畫、減少粒子，並關閉拖尾與畫面震動；不影響彈射玩法。</small></span><input type="checkbox" id="lowEffects"></label>
+    <label class="toggle-row"><span><b>炸屏演出</b><small>單次衝擊波、速度射線與鏡頭頓挫，不使用頻繁閃光；輕量特效開啟時優先停用。</small></span><input type="checkbox" id="impactSetting" checked></label>
+    <label class="toggle-row"><span><b>背景音樂 · Bon Bon Bonji</b><small>獨立於音效開關。只使用內附的相對路徑音樂檔，完全離線，不連接網路。</small></span><input type="checkbox" id="musicSetting" checked></label>
+    <label class="setting-label" for="musicVolume">背景音樂音量 <output id="musicOutput" for="musicVolume">25%</output></label>
+    <input id="musicVolume" type="range" min="0" max="40" step="1" value="25">
+    <label class="toggle-row"><span><b>合成音效（SFX）</b><small>以瀏覽器即時合成，不需音訊檔；頂部「音效」按鈕只控制音效，不影響背景音樂。</small></span><input type="checkbox" id="soundSetting"></label>
+    <label class="setting-label" for="sfxVolume">音效音量 <output id="sfxOutput" for="sfxVolume">45%</output></label>
+    <input id="sfxVolume" type="range" min="0" max="100" step="1" value="45">
+    <p class="notice">誇張音效來自失真音色，不是無限制加大音量。建議先調低裝置音量，尤其使用耳機時，再按試聽。</p>
+    <button class="button secondary full" id="testSoundBtn">試聽誇張音效</button>
+    <p id="audioStatus" role="status">按下開始或音樂開關後播放背景音樂</p>
+    <p class="dialog-small">設定與最佳成績會儘量儲存在此瀏覽器。若瀏覽器封鎖本機儲存，仍可正常遊玩。</p>
+    <button class="button primary full" data-close>儲存，繼續！</button>
+  </dialog>
+  <dialog id="pauseDialog"><div class="eyebrow">TAKE A BREATHER</div><h2>邦基暫時冷靜緊。</h2><p>遊戲暫停咗，毒霧都唞下先，唔好咁燥。</p><button class="button primary full" id="resumeBtn">繼續砌 →</button><button class="button secondary full" id="pauseRestart">重新開始本關</button><button class="text-button full" id="pauseHome">返回標題</button></dialog>
+  <dialog id="resultDialog" class="result-dialog"><div id="resultStamp" class="result-stamp">✓</div><div class="eyebrow" id="resultEyebrow">STREET CLEARED</div><h2 id="resultTitle">全場清空！</h2><p id="resultMessage"></p><div class="result-stats"><div><small>本關得分</small><b id="resultScore">0</b></div><div><small>歷史最佳</small><b id="resultBest">0</b></div></div><div id="resultStars" class="result-stars" aria-label="星等">★★★</div><button class="button primary full" id="nextBtn">下一關 →</button><button class="button secondary full" id="retryBtn">再嚟一次 ↻</button><button class="text-button full" id="resultLevels">選擇關卡</button></dialog>
+  <dialog id="rogueChoice" aria-labelledby="rogueChoiceTitle"><div class="eyebrow">BUILD × ROUTE</div><h2 id="rogueChoiceTitle">過關！揀升級，再揀路線</h2><div id="upgradeChoices"></div><label>下一站 <select id="routeChoice"><option value="normal">普通 · 標準難度</option><option value="elite">精英 · 更硬敵人，得分 ×1.5</option><option value="supply">補給 · 額外 +2 彈藥，敵人 +10% 強度</option></select></label><p id="choiceSummary"></p><button class="button primary full" id="rogueContinue">確認，下一波 →</button><button class="text-button full" id="rogueSaveHome">保留存檔，返回標題</button></dialog>
+</body>
+</html>
