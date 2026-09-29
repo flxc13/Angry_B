@@ -73,7 +73,8 @@ h1 em:after { height: 10px; bottom: 0; background: var(--yellow); }
 .how-strip { border: 2px solid var(--ink); border-radius: 3px; background: var(--cream); box-shadow: 4px 4px 0 var(--ink); margin: 20px 0 26px; }
 .step-number { border: 2px solid var(--ink); border-radius: 3px; background: var(--yellow); color: var(--ink); font-weight: 900; transform: rotate(-5deg); }
 .step-arrow { color: var(--green); }
-footer { color: var(--muted); }
+footer { color: var(--muted); flex-wrap: wrap; gap: 8px 16px; }
+.legal-links { display: inline-flex; flex-wrap: wrap; gap: 8px 14px; }
 .level-card { border: 2px solid var(--ink); border-radius: 4px; }
 .level-card-art { border-bottom: 2px solid var(--ink); }
 .level-card-art canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
