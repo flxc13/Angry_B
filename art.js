@@ -15,9 +15,9 @@
   const FONT = '"Segoe UI", "Microsoft JhengHei", "PingFang TC", sans-serif';
   const themes = Object.freeze({
     park: Object.freeze({ label: '維多利亞公園', tag: 'VICTORIA PARK · 城市綠洲，啱晒發爛渣', color: '#43ab72' }),
-    court: Object.freeze({ label: '匹克球俱樂部', tag: 'PICKLEBALL · 活力球場，打撚到你仆街', color: '#278bd1' }),
-    bangla: Object.freeze({ label: '布吉・不夜街', tag: 'BANGLA STREET · 霓虹夜遊，小心被逮捕', color: '#e851ad' }),
-    space: Object.freeze({ label: '富林太空站', tag: 'FULIN SPACE STATION · 外星人係邊？', color: '#68cee0' })
+    court: Object.freeze({ label: '匹克球俱樂部', tag: 'PICKLEBALL · 活力球場，打到你仆街', color: '#278bd1' }),
+    bangla: Object.freeze({ label: '布吉・不夜街', tag: 'BANGLA STREET · 霓虹夜遊，唔準唔嬲', color: '#e851ad' }),
+    space: Object.freeze({ label: '富林太空站', tag: 'FULIN SPACE STATION · 軌道漫遊，太空都聽到粗口', color: '#68cee0' })
   });
   const cache = Object.create(null);
 

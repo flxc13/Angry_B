@@ -9,18 +9,18 @@
   const TAU = Math.PI * 2;
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
   const rand = (min, max) => min + Math.random() * (max - min);
-  const quotes = ['屌你老母！撞死你班撚樣！', '係咪唔撚玩得？', '一出嚟就死，屌！', '唔撚玩啦，戇鳩！', 'u u wa wa uwa', '仆街啦你哋！', '食屎啦！冚家剷！', '死撚開啲，唔好阻住我砌！', '頂你個肺，再嚟多次！', '痴撚線！邊個整飛我個眼鏡？', '柒頭，企定啲，唔好咁戇鳩！', '屌你老母，今次真係大含撚喇！'];
+  const quotes = ['屌你個肺！撞埋先講！', '係咪唔玩得?', '一出黎就死!一出黎就死!', '唔撚玩啦', 'u u wa wa uwa', '仆街啦你哋！', '食屎啦！冚唪唥！', '死開啲，唔好阻撚住晒！', '頂你個肺，再嚟多次！', '痴撚線！邊個整飛我副眼鏡？', '你老味！今次大鑊喇！', '戇鳩鳩，企定啲嚟砌！'];
   const events = {
-    miss: { title: '送撚咗頭！', detail: '方向失控 · 今次直接 MISS，俾你老母笑撚到仆街！', icon: '↖' },
-    glasses: { title: '眼鏡飛撚埋！', detail: '睇唔撚清呀！模糊 2.4 秒後恢復，屌你老母', icon: '◎' },
-    pants: { title: '條褲爆撚左軚！', detail: '底褲仲喺度 · 彈射力 +28%，好撚肉酸呀！', icon: '✦' },
-    train: { title: '化身火車頭！', detail: '高速實體撞擊 · 首次接觸爆破半徑 135，唔使咁戇鳩', icon: '▣' },
-    headwind: { title: '性無能', detail: '今發水平速度 -10%，但你仲有得屌，唔使咁死氣', icon: '↤' },
-    heavy: { title: '好撚重呀', detail: '今發重力 +12%，冇強制射失，但你都識屌', icon: '↓' },
-    fog: { title: '霧霾來襲', detail: '2 秒淡霧；目標輪廓及瞄準仍可見，唔好再瞎撚咁砌', icon: '≋' },
-    boost: { title: '瘋狂射精', detail: '大爆射，今發速度 +12%，屌你老母猛！', icon: '↗' },
-    shield: { title: 'Lady Boy加護', detail: '抵擋下一次不利事件（最多 2 層），唔好屌你老母咁弱', icon: '◇' },
-    bonus: { title: '泰國小販補給', detail: '立即 +1 發，最多 8 發，屌你老母有得打', icon: '+' }
+    miss: { title: '送撚咗頭！', detail: '方向失控 · 今次直接 MISS，丟撚架！', icon: '↖' },
+    glasses: { title: '眼鏡都飛撚埋！', detail: '睇唔撚清呀！模糊 2.4 秒後恢復', icon: '◎' },
+    pants: { title: '褲子爆撚開！', detail: '安全底褲仲喺度 · 彈射力 +28%，好肉酸呀！', icon: '✦' },
+    train: { title: '化身火車頭！', detail: '高速實體撞擊 · 首次接觸爆破半徑 135，非全場清除', icon: '▣' },
+    headwind: { title: '迎面逆風', detail: '今發水平速度 -10%，仍可使用技能修正', icon: '↤' },
+    heavy: { title: '重力行李', detail: '今發重力 +12%，沒有強制射失', icon: '↓' },
+    fog: { title: '薄霧來襲', detail: '2 秒淡霧；目標輪廓及瞄準仍可見', icon: '≋' },
+    boost: { title: '順風助推', detail: '今發速度 +12%', icon: '↗' },
+    shield: { title: '幸運護罩', detail: '抵擋下一次不利事件（最多 2 層）', icon: '◇' },
+    bonus: { title: '街坊補給', detail: '立即 +1 發，最多 8 發', icon: '+' }
   };
   const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
   const art = window.BongiArt;
@@ -79,13 +79,13 @@
     return [block(x - width / 2 + 12, base - 54, 24, 108, material), block(x + width / 2 - 12, base - 54, 24, 108, material), block(x, base - 119, width + 30, 22, material)];
   }
   const levels = [
-    { title: '初次跳車', area: '薄荷街', description: '先熱下身，撞撚散街角啲紙皮架先。', shots: 4, color: '#dce9c3',
+    { title: '初次出窗', area: '薄荷街', description: '先熱下身，撞撚散街角啲紙皮架先。', shots: 4, color: '#dce9c3',
       build: () => [...tower(822), enemy(822, 576), enemy(822, 446)] },
-    { title: '泰國小販', area: '午後夜市', description: '小販把口咁屌你老母咁硬，邦基一撞就散，冚家剷。', shots: 4, color: '#efe4ba',
+    { title: '玻璃心小販', area: '午後夜市', description: '小販把口咁撚硬，玻璃就脆到喊，一撞即碎。', shots: 4, color: '#efe4ba',
       build: () => [...tower(755, 152, GROUND, 'glass'), enemy(755, 447, 'vendor'), enemy(755, 576), ...tower(1010, 132), enemy(1010, 447)] },
-    { title: '一齊玩泰國雞', area: '脫衣舞俱樂部', description: '成年舞台藝人返場，睇到眼冤，屌你老母，冚唪唥冧晒落嚟啦！', shots: 4, color: '#dce0ed',
+    { title: '舞台要塌啦', area: '河畔小劇場', description: '成年泰國舞台藝人誇張返場，睇到眼冤，冚唪唥冧晒落嚟啦！', shots: 4, color: '#dce0ed',
       build: () => [...tower(855, 265), ...tower(855, 145, 474, 'glass'), enemy(855, 576, 'performer'), enemy(855, 446), enemy(855, 316, 'performer'), enemy(1080, 576)] },
-    { title: '雙子塔大混亂', area: '舊城停車場', description: '打中支點，等兩座塔一齊收工放假，屌你老母，真係猛。', shots: 5, color: '#ead8c4',
+    { title: '雙塔大混亂', area: '舊城停車場', description: '打中支點，等兩座塔一齊收工放假，仆街啦！', shots: 5, color: '#ead8c4',
       build: () => [...tower(738, 132), ...tower(1033, 132, GROUND, 'glass'), ...tower(738, 106, 474, 'glass'), enemy(738, 316, 'vendor'), enemy(738, 576), enemy(1033, 446, 'performer'), enemy(1033, 576), enemy(900, 576)] },
     { title: '終極街坊大會', area: '邦基大道', description: '成條街嘅街坊都等緊你呢最後一鑊，唔好丟架呀柒頭！', shots: 5, color: '#cfe4d8',
       build: () => [...tower(808, 220), ...tower(808, 138, 474), ...tower(1080, 126, GROUND, 'glass'), enemy(808, 316, 'vendor'), enemy(808, 446, 'performer'), enemy(765, 576), enemy(855, 576), enemy(1080, 446, 'performer'), enemy(1080, 576)] }
@@ -105,6 +105,7 @@
   let forcedEvent;
   const rogue=window.BongiRogue;
   let run=null, projectiles=[], skillCharges=0, eventGuards=0, selectedUpgrade=null, boundary=null;
+  let giantTarget=850, giantWaves=[], giantEchoes=[], giantLandings=0, shotCharge=0, shotChargeSettled=false;
   let meta={best:0,records:{},achievements:[],cosmetic:'classic'}, storageAvailable=true;
   try {
     const m=JSON.parse(localStorage.getItem('bongi-rogue-meta')||'null');
@@ -165,10 +166,12 @@
     if(run.phase==='choice')showRogueChoice();else loadWave();return true;
   }
   function updateRogueHud(){
+    updateGiantHud();
     $('rogueHud').hidden=!run;if(!run)return;
     $('rogueStatus').textContent=`第 ${run.wave} 波 · ${rogue.starts[run.start]} · ${run.route} · 護符 ${eventGuards}`;
-    $('rogueBuild').textContent=Object.entries(run.upgrades).map(([key,n])=>`${rogue.upgrades.find(u=>u.id===key).name} ×${n}`).join(' / ')||'起始流派：飛行中按 E / 空白鍵或技能按鈕。';
+    $('rogueBuild').textContent=Object.entries(run.upgrades).map(([key,n])=>`${rogue.node(key).name} ×${n}`).join(' / ')||'起始流派：飛行中按 E / 空白鍵或技能按鈕。';
     $('skillBtn').disabled=state!=='flight'||skillCharges<=0||paused;
+    if(giantActive()&&(current?.plunging||current?.ultimate))$('skillBtn').disabled=true;
     $('skillBtn').textContent=`技能 ${skillCharges} · E / 空白鍵`;
   }
   function showRogueChoice(){
@@ -178,6 +181,11 @@
     $('aimHint').hidden=true;$('subtitle').hidden=true;$('eventToast').hidden=true;
     setScreen('game');hudDirty=true;updateHud();updateRogueHud();
     const choices=rogue.offers(run);
+    $('giantChoiceHint').hidden=run.start!=='giant';
+    if(run.start==='giant'){
+      const g=rogue.giantBuild(run);
+      $('giantChoiceHint').textContent=!g.branch&&run.wave>=2?'揀一派跟到底！地震派震埋兩邊；磁力派執料加餸。兩派都送滿氣大技，下波即用！':g.branch&&!g.mutation&&run.wave>=4?'大技再加餸：揀坐闊啲，定坐實啲？今鋪揀咗就唔反口喇！':'呢度揀嘅嘢，下發就用得。高空加餸靠高度，大隻佬識轉彎就坐得遠啲！';
+    }
     for(const u of choices){const b=document.createElement('button');b.className='button secondary full';b.textContent=`${u.name} · ${u.description}`;b.setAttribute('aria-pressed','false');b.addEventListener('click',()=>{selectedUpgrade=u.id;for(const c of $('upgradeChoices').children)c.setAttribute('aria-pressed',String(c===b));$('rogueContinue').disabled=false;});$('upgradeChoices').append(b);}
     $('rogueContinue').disabled=choices.length>0;$('routeChoice').value='normal';
     $('choiceSummary').textContent=`已清 ${run.wave} 波 · ${run.score} 分 · 剩 ${run.ammo} 發；下波補充 ${rogue.stats(run).refill} 發，最多 8。${choices.length?'':'所有升級已達上限，選路繼續。'}`;
@@ -192,6 +200,7 @@
   }
   function activateSkill(){
     if(!run||state!=='flight'||paused||skillCharges<=0)return false;
+    if(run.start==='giant')return plungeSkill();
     const active=projectiles.filter(p=>p.alive&&p.x>-90&&p.x<W+110&&p.y<H+90);if(!active.length)return false;
     skillCharges--;const s=rogue.stats(run);
     for(const p of active){
@@ -202,6 +211,162 @@
       }}
     }
     updateRogueHud();return true;
+  }
+
+  // Giant mechanics use fixed-step physics only; particles and reduced motion
+  // never contribute damage, charge, targeting, collection, or bounce timing.
+  function giantActive(){return !!run&&run.start==='giant';}
+  function giantProjectile(){return current&&current.alive&&!current.ghost&&current.x>-90&&current.x<W+110&&current.y<H+90?current:null;}
+  function giantMessage(message){$('giantFeedback').textContent=message;}
+  function setGiantTarget(value){
+    if(!Number.isFinite(value))return false;
+    giantTarget=clamp(Math.round(value/10)*10,400,1200);
+    $('giantTarget').value=String(giantTarget);$('giantTargetValue').textContent=String(giantTarget);return true;
+  }
+  function plungePlan(p){
+    const g=rogue.giantBuild(run), height=Math.max(0,GROUND-p.r-p.y);
+    const gravity=GRAVITY*(p.gravityScale||1), time=Math.max(.04,(Math.sqrt(950*950+2*gravity*height)-950)/gravity);
+    const reach=Math.min(g.plungeReach,time*1100);
+    return {x:clamp(giantTarget,Math.max(p.r,p.x-reach),Math.min(W-p.r,p.x+reach)),time};
+  }
+  function updateGiantHud(){
+    const active=giantActive();$('giantHud').hidden=!active;
+    $('giantQuick').hidden=!active||!['ready','flight'].includes(state);
+    if(!active)return;
+    const g=rogue.giantBuild(run),p=giantProjectile(), flying=screen==='game'&&state==='flight'&&!paused&&!!p;
+    $('giantBranch').textContent=g.branchName;
+    $('giantMilestone').textContent=!g.branch?'清第 2 波揀派，送滿氣大技！':!g.mutation?'清第 4 波再加餸，揀大技變化！':`加餸：${rogue.node(g.mutation==='wide'?'giantWide':'giantHeavy').name}`;
+    $('plungeBtn').disabled=!flying||skillCharges<=0||!!p?.plunging||!!p?.ultimate;
+    $('plungeBtn').textContent=`坐低！ · E · ${skillCharges} 次`;
+    const final=!!p?.ultimate&&(p.ultimateBounces||0)>=2&&!p.plunging;
+    $('ultimateBtn').disabled=!flying||(!final&&(!g.ultimate||run.ultimateCharge<100||!!p?.ultimate));
+    $('ultimateBtn').textContent=final?'夠彈喇，坐低！ · Q':'巨型彈彈邦 · Q';
+    $('ultimateBtn').dataset.ready=String(flying&&(final||g.ultimate&&run.ultimateCharge===100&&!p?.ultimate));
+    $('giantCharge').value=run.ultimateCharge;
+    $('giantQuickCharge').textContent=g.ultimate?`${run.ultimateCharge}/100`:'清 2 波開技';
+    const tree=[
+      {owned:!!(run.upgrades.giantReach||run.upgrades.giantHeight),label:`① ${run.upgrades.giantReach?'大隻佬識轉彎':run.upgrades.giantHeight?'高空加餸':'清 1 波：揀轉彎／加餸'}`},
+      {owned:!!g.branch,label:`② ${g.branch?g.branchName:'清 2 波：地震派／磁力派'}`},
+      {owned:!!g.mutation,label:`③ ${g.mutation?rogue.node(g.mutation==='wide'?'giantWide':'giantHeavy').name:'清 4 波：橫向發展／實心唔呃秤'}`}
+    ];
+    const treeKey=tree.map(item=>item.label).join('|');
+    if($('giantTree').dataset.build!==treeKey){
+      $('giantTree').dataset.build=treeKey;$('giantTree').replaceChildren();
+      for(const item of tree){const li=document.createElement('li');li.dataset.owned=String(item.owned);li.textContent=item.label;$('giantTree').append(li);}
+    }
+    $('giantChargeText').textContent=!g.ultimate?'未開大技？清第 2 波揀派先啦！':p?.ultimate?`彈咗 ${p.ultimateBounces||0} / 2 次；之後撳 Q 收尾，唔撳都會落地。`:`儲氣 ${run.ultimateCharge} / 100 · 每發保底 +12，撞散嘢再加，最多 +40`;
+  }
+  function giantCharge(amount){
+    if(!giantActive()||!rogue.giantBuild(run).ultimate||state!=='flight'||shotChargeSettled)return;
+    const gain=Math.min(amount,28-shotCharge);if(gain<=0)return;
+    shotCharge+=gain;run.ultimateCharge=Math.min(100,run.ultimateCharge+gain);updateGiantHud();
+  }
+  function settleGiantCharge(){
+    if(shotChargeSettled||!giantActive()||!rogue.giantBuild(run).ultimate)return;
+    shotChargeSettled=true;run.ultimateCharge=Math.min(100,run.ultimateCharge+12);
+  }
+  function preparePlunge(p){
+    const plan=plungePlan(p);
+    p.plunging=true;p.plungeY=p.y;p.plungeX=plan.x;
+    p.vx=clamp((plan.x-p.x)/plan.time,-1100,1100);p.vy=950;p.spin=0;
+  }
+  function plungeSkill(){
+    const p=giantProjectile();if(!p||p.plunging||p.ultimate||p.y+p.r>=GROUND-5)return false;
+    skillCharges--;preparePlunge(p);
+    giantMessage('唔該借借，邦基要坐低喇！飛得越高，落地越夠料。');sound('launch');updateRogueHud();return true;
+  }
+  function activateUltimate(){
+    if(!giantActive()||screen!=='game'||state!=='flight'||paused)return false;
+    const p=giantProjectile(),g=rogue.giantBuild(run);if(!p||!g.ultimate)return false;
+    if(p.ultimate){
+      if(p.ultimateBounces<2||p.plunging)return false;
+      preparePlunge(p);giantMessage('彈夠喇！呢吓坐實，唔使幫我留位！');updateRogueHud();return true;
+    }
+    if(run.ultimateCharge<100||p.y+p.r>=GROUND-12)return false;
+    run.ultimateCharge=0;p.ultimate=true;p.ultimateBounces=0;
+    p.normalRadius=p.r;p.normalInvMass=p.invMass;
+    p.r=68;p.w=p.h=p.r*2;p.invMass/=1.6;p.invI=2*p.invMass/(p.r*p.r);
+    p.y=Math.min(p.y,GROUND-p.r-8);preparePlunge(p);
+    giantMessage('巨型彈彈邦到貨！彈兩吓，再撳 Q 揀時機坐實。');sound('event');updateRogueHud();return true;
+  }
+  function collectGiantDebris(p,dt){
+    if(!giantActive()||(!p.plunging&&!p.ultimate))return;
+    const g=rogue.giantBuild(run);if(g.branch!=='magnet')return;
+    p.cargo=p.cargo||[];p.collected=p.collected||new Set();
+    for(const b of bodies){
+      if(p.cargo.length>=g.magnetLimit)break;
+      // Small resting loose pieces or already-damaged moving debris only.
+      if(!b.alive||b.type!=='block'||b.relay||p.collected.has(b.id)||
+        !((b.w<=60&&b.h<=60)||(!b.sleeping&&b.hp<b.maxHp&&b.w*b.h<=6000)))continue;
+      const dx=p.x-b.x,dy=p.y-b.y,d=Math.hypot(dx,dy);if(d>g.magnetRadius)continue;
+      wakeStructure(b);
+      b.vx=clamp(b.vx+dx/(d||1)*1800*dt,-900,900);b.vy=clamp(b.vy+dy/(d||1)*1800*dt,-900,900);
+      if(d<p.r+45){b.alive=false;b.carried=true;p.cargo.push(b);p.collected.add(b.id);}
+    }
+  }
+  function releaseGiantDebris(p){
+    const cargo=p.cargo||[];
+    cargo.forEach((b,i)=>{
+      const angle=Math.PI+(i+1)*Math.PI/(cargo.length+1);
+      b.alive=true;b.carried=false;b.sleeping=false;b.x=clamp(p.x+Math.cos(angle)*(p.r+48),40,W-40);
+      b.y=Math.min(GROUND-b.h/2-2,p.y+Math.sin(angle)*(p.r+48));b.previousX=b.x;b.previousY=b.y;
+      b.vx=Math.cos(angle)*560;b.vy=Math.sin(angle)*520;b.spin=(i%2?1:-1)*8;
+    });
+    p.cargo=[];return cargo.length;
+  }
+  function giantDamage(b,amount,g){
+    const s=rogue.stats(run);
+    applyDamage(b,amount*g.damageMultiplier*s.damage*(b.type==='block'?g.structureMultiplier*s.structure:1),true);
+  }
+  function emitGiantWave(x,damage,g,echo=false){
+    if(giantWaves.length>=8)return;
+    giantWaves.push({x,r:0,reach:g.waveReach,damage,g,hit:new Set()});
+    if(g.aftershock&&!echo&&giantEchoes.length<4)giantEchoes.push({x,damage:damage*.6,g,delay:g.aftershockDelay});
+  }
+  function giantLanding(p,x,y,speed){
+    if(!giantActive()||!p.plunging||(p.giantCooldown||0)>0||speed<120)return;
+    const g=rogue.giantBuild(run),height=clamp(p.y-p.plungeY,0,550),ultimate=!!p.ultimate;
+    p.plunging=false;p.giantCooldown=.22;giantLandings++;
+    const cargo=releaseGiantDebris(p),final=ultimate&&p.ultimateBounces>=2;
+    const damage=(90+height*g.heightBonus+cargo*24)*(final?2:ultimate?1.25:1);
+    const radius=g.impactRadius+(ultimate?40:0);
+    for(const b of bodies){
+      if(!b.alive||b.type==='bongi')continue;
+      const dx=b.x-x,dy=b.y-y,d=Math.hypot(dx,dy);if(d>radius+projection(b,{x:0,y:1})*.35)continue;
+      wakeStructure(b);b.vx+=Math.sign(dx||1)*130;b.vy-=180;
+      giantDamage(b,damage*(1-.4*Math.min(1,d/radius)),g);
+    }
+    if(g.branch==='quake')emitGiantWave(x,damage*.8,g);
+    waveRings.push({x,y,life:.65,radius});if(waveRings.length>10)waveRings.shift();
+    giantCharge(6);sound(ultimate&&!final?'giantBounce':'bomb');
+    giantMessage(cargo?`回收咗 ${cargo} 件，一齊落貨！`:final?'包裹已簽收！張凳仲喺唔喺度？':g.branch==='quake'?'樓下投訴：邊個搬緊櫃呀！':'坐得啱位，張凳都慳返！');
+    if(settings.impact&&!lowMotion())shake=Math.max(shake,final?14:8);
+    if(ultimate&&!final){
+      p.ultimateBounces++;p.vy=-640;p.vx=clamp((giantTarget-p.x)*1.3,-280,280);p.y-=6;
+    }else if(final){
+      p.ultimate=false;p.r=p.normalRadius;p.w=p.h=p.r*2;p.invMass=p.normalInvMass;p.invI=2*p.invMass/(p.r*p.r);
+    }
+    updateRogueHud();
+  }
+  function stepGiant(dt){
+    if(!giantActive()||state!=='flight')return;
+    const p=giantProjectile();
+    if(p){
+      p.giantCooldown=Math.max(0,(p.giantCooldown||0)-dt);
+      if(p.ultimate&&!p.plunging&&p.vy>80)preparePlunge(p);
+      collectGiantDebris(p,dt);
+    }
+    for(const echo of giantEchoes){echo.delay-=dt;if(echo.delay<=0)emitGiantWave(echo.x,echo.damage,echo.g,true);}
+    giantEchoes=giantEchoes.filter(echo=>echo.delay>0);
+    for(const wave of giantWaves){
+      wave.r=Math.min(wave.reach,wave.r+850*dt);
+      for(const b of bodies){
+        if(!b.alive||b.type==='bongi'||wave.hit.has(b.id)||Math.abs(b.x-wave.x)>wave.r||b.y+projection(b,{x:0,y:1})<GROUND-105)continue;
+        wave.hit.add(b.id);wakeStructure(b);b.vy-=260;b.vx+=Math.sign(b.x-wave.x||1)*120;
+        giantDamage(b,wave.damage*(1-.35*Math.abs(b.x-wave.x)/wave.reach),wave.g);
+      }
+    }
+    giantWaves=giantWaves.filter(wave=>wave.r<wave.reach);
   }
 
   function setScreen(next) {
@@ -228,6 +393,8 @@
     if(!keepRun)run=null;
     closeDialogs(); levelIndex = clamp(index, 0, levels.length - 1); const level = levels[levelIndex];
     id = 0; bodies = level.build(); particles = []; floaters = []; current = null;projectiles=[];skillCharges=0;eventGuards=0;
+    giantWaves=[];giantEchoes=[];giantLandings=0;shotCharge=0;shotChargeSettled=false;setGiantTarget(850);
+    giantMessage('先飛高啲，去到屋頂上面先坐低，唔好喺車門口落貨呀！');
     shots = level.shots; score = 0; shotCount = 0; flightTime = 0; quietTime = 0; clearTime = 0;
     shake = 0; flash = 0; blurTime = 0; toastTime = 0; quoteTime = 0; quoteCooldown = 0;
     clock = 0; arrestTime = 0; nextTaunt = 5; collisionCount = 0; trainClears = 0;
@@ -294,6 +461,7 @@
     if (length < 10) return false;
     if (length > MAX_PULL) { dx *= MAX_PULL / length; dy *= MAX_PULL / length; }
     shots--; shotCount++; eventName = null; eventDone = false;
+    shotCharge=0;shotChargeSettled=false;
     if (isTest && forcedEvent !== undefined) { eventName = forcedEvent; forcedEvent = undefined; }
     else if(run)eventName=rogue.rollEvent(run);
     else if (Math.random() * 100 < settings.chance) eventName = Object.keys(events)[Math.floor(Math.random() * Object.keys(events).length)];
@@ -386,6 +554,7 @@
   function impulse(b, jx, jy, rx, ry) { b.vx += jx * b.invMass; b.vy += jy * b.invMass; b.spin += (rx * jy - ry * jx) * b.invI; }
   function resolve(a, b, c, damage) {
     const { nx, ny, depth, x, y } = c, total = a.invMass + b.invMass;
+    const giantHero=a.type==='bongi'?a:b.type==='bongi'?b:null, giantSpeed=giantHero?giantHero.vy:0;
     const correct = Math.max(0, depth - .18) * .6 / total;
     a.x -= nx * correct * a.invMass; a.y -= ny * correct * a.invMass;
     b.x += nx * correct * b.invMass; b.y += ny * correct * b.invMass;
@@ -410,6 +579,7 @@
         const hero=a.type==='bongi'?a:b;hero.squash=.65;rage=1;
         if(hero.train&&!hero.trainSpent){hero.trainSpent=true;eventDone=true;blastAt(hero,135,110);}
         comicImpact(x,y-70,['KAPOW!','撞撚！','唔忍啦！'][collisionCount%3],'#ffd753');
+        if(giantSpeed>120&&y>=hero.y)giantLanding(hero,x,y,giantSpeed);
       }
     }
   }
@@ -431,6 +601,7 @@
         if(b.type==='bongi'){
           comicImpact(b.x,GROUND-95,'BOING!','#7ce4ee');
           if(b.train&&!b.trainSpent){b.trainSpent=true;eventDone=true;blastAt(b,135,110);}
+          giantLanding(b,b.x,GROUND,speed);
         }
       }
     }
@@ -471,6 +642,7 @@
   }
   function destroy(b) {
     if (!b.alive) return; b.alive = false;
+    giantCharge(b.type==='enemy'?8:3);
     if(b.type==='enemy')comicImpact(b.x,b.y-70,'扁撚咗！','#fca2ca');
     const points = b.type === 'enemy' ? b.points||1000 : 150; score += points; hudDirty = true;
     burst(b.x, b.y, b.type === 'enemy' ? '#a7b966' : b.material === 'glass' ? '#defbfa' : '#d9ad71', settings.low ? 6 : 15, 185);
@@ -603,6 +775,7 @@
       if (arrestTime >= 2.25) finish(false);
       return;
     }
+    stepGiant(dt);
     physics(dt, shotCount > 0);
     enemyAbilities(dt);
     if (state === 'ready' && clock > nextTaunt) {
@@ -622,7 +795,7 @@
       }
       const settled=projectiles.every(p=>!p.alive||p.x < -90||p.x > W+110||p.y>H+90||Math.hypot(p.vx,p.vy)<43);
       const moving = bodies.some(b => b.alive && b.type !== 'bongi' && (Math.hypot(b.vx, b.vy) > 27 || Math.abs(b.spin) > .6));
-      if (settled && !moving) quietTime += dt; else quietTime = 0;
+      if (settled && !moving&&!giantWaves.length&&!giantEchoes.length&&!current?.ultimate) quietTime += dt; else quietTime = 0;
       if ((quietTime > 1.15 && flightTime > 1.5) || flightTime > 12 || (eventName === 'miss' && flightTime > 2)) endShot();
     }
     const remaining = bodies.filter(b => b.type === 'enemy' && b.alive).length;
@@ -631,6 +804,7 @@
   }
   function endShot() {
     if (!bodies.some(b => b.alive && b.type === 'enemy')) return;
+    settleGiantCharge();for(const p of projectiles)releaseGiantDebris(p);
     bodies = bodies.filter(b => b.alive && b.type !== 'bongi'); current = null;projectiles=[];skillCharges=0;
     if (shots > 0) {
       state = 'ready'; $('aimHint').hidden = false;
@@ -645,6 +819,7 @@
   function finish(won) {
     if (state === 'won' || state === 'lost') return;
     if(run){
+      settleGiantCharge();
       state=won?'won':'lost';blurTime=0;canvas.classList.remove('blurry');
       run.ammo=shots;run.score=Math.min(Number.MAX_SAFE_INTEGER,score+(won?shots*100:0));score=run.score;
       recordRun(won?run.wave:run.wave-1);hudDirty=true;updateHud();updateRogueHud();
@@ -896,7 +1071,11 @@
     if(shake>.15&&!lowMotion())ctx.translate(Math.sin(clock*93)*shake,Math.cos(clock*117)*shake);
     background();
     launchBackdrop();
-    for(const wave of waveRings){ctx.save();ctx.globalAlpha=wave.life/.65*.6;const r=175*(1-wave.life/.65);ellipse(wave.x,wave.y,r,r,null,'#b8f57a',lowMotion()?2:7);ctx.restore();}
+    for(const wave of waveRings){ctx.save();ctx.globalAlpha=wave.life/.65*.6;const r=(wave.radius||175)*(1-wave.life/.65);ellipse(wave.x,wave.y,r,r,null,'#b8f57a',lowMotion()?2:7);ctx.restore();}
+    for(const wave of giantWaves){
+      line([[wave.x-wave.r,GROUND-3],[wave.x+wave.r,GROUND-3]],'#b47bcb',5);
+      for(const direction of [-1,1])ellipse(wave.x+direction*wave.r,GROUND-18,13,24,null,'#693775',3);
+    }
     for(const p of particles)if(p.kind==='gas'){ctx.globalAlpha=Math.max(0,p.life/p.max)*.32;ellipse(p.x,p.y,p.size,p.size*.8,p.color);}ctx.globalAlpha=1;
     car();
     for(const b of bodies)if(b.alive&&b.type==='block')drawBlock(renderPose(b));
@@ -911,13 +1090,20 @@
       const stretch=drag?Math.hypot(drag.x,drag.y)/MAX_PULL:0;
       line([[205,410],[x,y],[251,410]],'#192535',7);
       line([[205,410],[x,y]],'#e35d48',3);
-      bongi(x,y,drag?Math.atan2(-drag.y,-drag.x)*.18:lowMotion()?0:Math.sin(clock*2)*.04,null,29,-stretch*.65);
+      bongi(x,y,drag?Math.atan2(-drag.y,-drag.x)*.18:lowMotion()?0:Math.sin(clock*2)*.04,null,giantActive()?rogue.stats(run).size:29,-stretch*.65);
       if(!drag){ctx.setLineDash([3,7]);ellipse(ANCHOR.x,ANCHOR.y,43,43,null,'#f8f4cfb0',2);ctx.setLineDash([]);}
     } else if(current&&current.alive&&state!=='arrest'&&state!=='lost'){
       for(const p of projectiles){if(!p.alive||p===current)continue;const child=renderPose(p);bongi(child.x,child.y,child.angle,null,p.r,p.squash||0);}
       const pose=renderPose(current);
       if(run&&meta.cosmetic!=='classic')ellipse(pose.x,pose.y,current.r+6,current.r+6,null,meta.cosmetic==='gold'?'#ffd45b':'#8bf0c5',4);
       bongi(pose.x,pose.y,pose.angle,eventName,current.r,current.squash||0);
+      if(giantActive()){
+        ellipse(pose.x,pose.y,current.r+8,current.r+8,null,current.ultimate?'#ffce55':'#b47bcb',4);
+        for(let i=0;i<(current.cargo||[]).length;i++){
+          const angle=i*TAU/current.cargo.length+clock;
+          roundRect(pose.x+Math.cos(angle)*(current.r+24)-9,pose.y+Math.sin(angle)*(current.r+24)-9,18,18,3,'#d9ad71','#693775',2);
+        }
+      }
       if(!lowMotion()&&Math.hypot(current.vx,current.vy)>250){
         const angle=Math.atan2(current.vy,current.vx);ctx.save();ctx.translate(pose.x,pose.y);ctx.rotate(angle);
         for(let i=0;i<3;i++)line([[-48-i*9,(i-1)*19],[-83-i*14,(i-1)*23]],i%2?'#ffda58':'#fff7df',2.5);
@@ -940,6 +1126,15 @@
     for(const f of floaters){ctx.globalAlpha=Math.min(1,f.life*2);text(f.text,f.x,f.y,f.text==='MISS!'?44:21,f.color,900);}ctx.globalAlpha=1;
     if(eventName==='train'&&state==='flight'&&flightTime<1.8){ctx.globalAlpha=.55;for(let i=0;i<6;i++)line([[420+i*140,365+i*13],[500+i*140,365+i*13]],'#faf4c5',4);ctx.globalAlpha=1;}
     for(const mark of impacts)drawComicImpact(mark);
+    if(giantActive()&&(state==='ready'||state==='flight')){
+      const p=giantProjectile(),x=p?(p.plunging?p.plungeX:plungePlan(p).x):giantTarget;
+      const radius=rogue.giantBuild(run).impactRadius+(p?.ultimate?40:0);
+      ellipse(x,GROUND-3,radius,12,'#b47bcb33','#edc6ff',3);
+      line([[x,GROUND-48],[x,GROUND-16]],'#edc6ff',3);
+      roundRect(x-55,GROUND-77,110,28,6,'#402647','#edc6ff',2);
+      text(p?.plunging?'坐緊落嚟！':'落腳位',x,GROUND-62,16,'#fff5dc',900);
+      if(p&&!p.plunging){ctx.setLineDash([8,8]);line([[p.x,p.y],[x,GROUND-p.r]],'#edc6ff',2);ctx.setLineDash([]);}
+    }
     if(eventName==='fog'&&blurTime>0){ctx.fillStyle='rgba(236,242,230,.16)';ctx.fillRect(0,0,W,GROUND);}
     blastCaption();
     if(flash>0&&!lowMotion()){ctx.fillStyle=`rgba(255,248,208,${Math.min(.15,flash)})`;ctx.fillRect(0,0,W,H);}
@@ -964,6 +1159,9 @@
   function updatePower(){const p=drag||pull,percent=Math.round(Math.hypot(p.x,p.y)/MAX_PULL*100);$('powerMeter').hidden=false;$('powerFill').style.width=`${percent}%`;$('powerValue').textContent=`${percent}%`;}
   function cancelDrag(){drag=null;if(pointerId!==null&&canvas.hasPointerCapture(pointerId))canvas.releasePointerCapture(pointerId);pointerId=null;$('powerMeter').hidden=true;}
   canvas.addEventListener('pointerdown',e=>{
+    if(giantActive()&&state==='flight'&&!paused&&screen==='game'&&(e.pointerType!=='mouse'||e.button===0)){
+      e.preventDefault();setGiantTarget(position(e).x);canvas.focus({preventScroll:true});return;
+    }
     if(state!=='ready'||paused||screen!=='game'||pointerId!==null||(e.pointerType==='mouse'&&e.button!==0))return;
     const p=position(e),rect=canvas.getBoundingClientRect(),radius=Math.max(53,26*W/rect.width);
     if(Math.hypot(p.x-ANCHOR.x,p.y-ANCHOR.y)>radius)return;
@@ -982,6 +1180,10 @@
     }
     if(e.code==='Escape'||e.code==='KeyP'){e.preventDefault();openDialog($('pauseDialog'));return;}
     if(e.code==='KeyR'){e.preventDefault();restartCurrent();return;}
+    if(giantActive()&&state==='flight'&&!paused){
+      if(e.code==='KeyQ'){e.preventDefault();if(!e.repeat)activateUltimate();return;}
+      if(e.code==='ArrowLeft'||e.code==='ArrowRight'){e.preventDefault();setGiantTarget(giantTarget+(e.code==='ArrowLeft'?-30:30));return;}
+    }
     if(run&&state==='flight'&&(e.code==='KeyE'||e.code==='Space')){e.preventDefault();if(!e.repeat)activateSkill();return;}
     if(paused||state!=='ready')return;
     if(e.code==='Space'&&e.target===canvas){e.preventDefault();launch(pull);return;}
@@ -1014,6 +1216,9 @@
   $('dailyBtn').addEventListener('click',()=>startRogue(`daily-${new Date().toISOString().slice(0,10)}`,$('rogueStart').value,6,true));
   $('rogueResume').addEventListener('click',resumeRogue);
   $('skillBtn').addEventListener('click',activateSkill);
+  $('plungeBtn').addEventListener('click',activateSkill);
+  $('ultimateBtn').addEventListener('click',activateUltimate);
+  $('giantTarget').addEventListener('input',e=>{setGiantTarget(Number(e.target.value));});
   $('rogueContinue').addEventListener('click',()=>{if(rogue.advance(run,selectedUpgrade,$('routeChoice').value))loadWave();});
   $('rogueSaveHome').addEventListener('click',()=>{closeDialogs();setScreen('home');});
   $('rogueCosmetic').addEventListener('change',()=>{const value=$('rogueCosmetic').value;if(value==='classic'||value==='mint'&&meta.best>=5||value==='gold'&&meta.best>=10){meta.cosmetic=value;try{localStorage.setItem('bongi-rogue-meta',JSON.stringify(meta));}catch(_){storageAvailable=false;}}refreshRogueHome();});
@@ -1078,6 +1283,7 @@
   // Opt-in deterministic test harness. Absent in normal play; exercises the real engine.
   if(isTest)window.BongiTest={
     startRogue,skill:activateSkill,resumeRogue,restart:restartCurrent,
+    ultimate:activateUltimate,target:setGiantTarget,
     naturalLaunch:(x,y)=>launch({x,y}),
     configure:values=>{Object.assign(settings,values);syncSettings();},
     checkpoint:()=>boundary,
@@ -1085,7 +1291,7 @@
     choose:(upgrade,route)=>{if(!run||!rogue.advance(run,upgrade,route))return false;loadWave();return true;},
     damage:(id,amount,poison=false)=>{const b=bodies.find(b=>b.id===id);if(b)applyDamage(b,amount,true,poison);},
     setBody:(id,values)=>{const b=bodies.find(b=>b.id===id);if(b)Object.assign(b,values);},
-    rogueSnapshot:()=>({run:run?JSON.parse(JSON.stringify(run)):null,skillCharges,eventGuards,projectiles:projectiles.map(p=>({id:p.id,x:p.x,y:p.y,vx:p.vx,vy:p.vy,r:p.r})),meta:JSON.parse(JSON.stringify(meta))}),
+    rogueSnapshot:()=>({run:run?JSON.parse(JSON.stringify(run)):null,skillCharges,eventGuards,giantTarget,giantLandings,giantWaves:giantWaves.length,giantEchoes:giantEchoes.length,shotCharge,projectiles:projectiles.map(p=>({id:p.id,x:p.x,y:p.y,vx:p.vx,vy:p.vy,r:p.r,plunging:!!p.plunging,ultimate:!!p.ultimate,bounces:p.ultimateBounces||0,cargo:(p.cargo||[]).length,plungeX:p.plungeX})),meta:JSON.parse(JSON.stringify(meta))}),
     load:loadLevel,
     launch:(x,y,event=null)=>{forcedEvent=event;return launch({x,y});},
     advance:seconds=>{for(let i=0;i<Math.ceil(seconds/DT);i++)step(DT);if(!paused)renderAlpha=1;draw();},

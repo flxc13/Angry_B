@@ -34,7 +34,45 @@ function boot({storage=new Map(),blocked=false}={}){
   return {t:sandbox.BongiTest,r:sandbox.BongiRogue,e:elements,storage,document};
 }
 const json=x=>JSON.parse(JSON.stringify(x));
-let passed=0;function test(name,fn){try{fn();passed++;console.log('PASS',name);}catch(error){console.error('FAIL',name);throw error;}}
+let passed=0;const failures=[];
+function test(name,fn){try{fn();passed++;console.log('PASS',name);}catch(error){failures.push(name);console.error('FAIL',name,error.stack);}}
+// Boundary fixtures own only real nodes, with enough cleared waves for every pick.
+function giantRun(r,branch=null,wave=3,nodes=[]){
+  const run=r.create('giant-mechanics','giant');
+  run.upgrades=Object.fromEntries([...new Set(['giantReach',...(branch?[branch]:[]),...nodes])].map(id=>[id,1]));
+  run.wave=Math.max(wave,1+Object.values(run.upgrades).reduce((a,b)=>a+b,0),...Object.keys(run.upgrades).map(id=>(r.node(id).minWave||0)+1));
+  run.ultimateCharge=branch?100:0;assert(r.validate(run),'giant fixture must be a valid v2 boundary');return run;
+}
+function assertOffers(r,run){
+  const before=JSON.stringify(run),offer=r.offers(run);
+  assert.deepEqual(json(offer),json(r.offers(run)),'offers must replay deterministically');
+  assert.equal(JSON.stringify(run),before,'offers must not mutate the run');
+  assert(offer.length<=3);assert.equal(new Set(offer.map(u=>u.id)).size,offer.length);
+  for(const u of offer){
+    assert((run.upgrades[u.id]||0)<u.max,`capped offer ${u.id}`);
+    if(u.kind){
+      assert.equal(run.start,'giant');assert(run.wave>=u.minWave,`early node ${u.id}`);
+      assert(u.requires.every(id=>run.upgrades[id]===1),`missing prerequisite ${u.id}`);
+      assert(!u.requiresAny.length||u.requiresAny.some(id=>run.upgrades[id]===1));
+      assert(!u.exclusive||!r.giantNodes.some(other=>other.id!==u.id&&other.exclusive===u.exclusive&&run.upgrades[other.id]));
+    }else{
+      const after=r.stats({...run,upgrades:{...run.upgrades,[u.id]:(run.upgrades[u.id]||0)+1}});
+      assert(after[u.stat]>r.stats(run)[u.stat],`no-effect offer ${u.id}`);
+      if(run.start==='giant')assert(!['blast','radius','children','dash'].includes(u.stat),`inactive giant hybrid ${u.id}`);
+      if(u.stat==='radius')assert(r.stats(run).blast>0);
+    }
+  }
+  return offer;
+}
+function until(t,predicate,seconds=5){
+  for(let i=0;i<Math.ceil(seconds*120);i++){
+    if(predicate(t.rogueSnapshot()))return;
+    t.advance(1/120);
+  }
+  assert(predicate(t.rogueSnapshot()),`condition not reached within ${seconds}s`);
+}
+const projectile=t=>t.rogueSnapshot().projectiles[0];
+const liveBody=(t,id)=>t.snapshot().bodies.find(b=>b.id===id);
 const {r}=boot();
 test('12 deterministic templates; bounded bodies; rising difficulty; elite/boss schedule',()=>{
   const templates=new Set();
@@ -48,8 +86,8 @@ test('12 deterministic templates; bounded bodies; rising difficulty; elite/boss 
 });
 test('24 upgrades, deterministic unique offers, stack caps and mixed stats',()=>{
   assert.equal(r.upgrades.length,24);const run=r.create('build','split');
-  for(let i=0;i<60;i++){run.phase='choice';const offer=r.offers(run);assert.deepEqual(json(offer),json(r.offers(run)));assert.equal(new Set(offer.map(u=>u.id)).size,offer.length);assert(r.advance(run,offer[0]?.id,'normal'));assert(run.ammo<=8);}
-  assert(Object.values(run.upgrades).every(n=>n===2));assert.equal(Object.keys(run.upgrades).length,24);assert.equal(r.offers(run).length,0);
+  for(let i=0;i<60;i++){run.phase='choice';const offer=assertOffers(r,run);assert(r.advance(run,offer[0]?.id,'normal'));assert(r.validate(run));assert(run.ammo<=8);}
+  assert(Object.entries(run.upgrades).every(([id,n])=>n>=1&&n<=r.node(id).max));assert(Object.keys(run.upgrades).length<=24);assert.equal(r.offers(run).length,0);
   const s=r.stats(run);assert(s.children<=3&&s.charges<=2&&s.power<=1.5&&s.blast<=180&&s.radius<=175);
 });
 test('route transactions reject invalid input and replenish ammo 6 / +3 / max8',()=>{
@@ -65,7 +103,7 @@ test('immutable 28% event distribution: reproducible, good/bad, no forced miss',
 });
 test('snapshot schema rejects corruption, prototype keys, impossible caps and versions',()=>{
   const run=r.create('save');assert.deepEqual(json(r.decode(JSON.stringify(run))),json(run));
-  for(const patch of [{version:2},{wave:-1},{wave:1.5},{ammo:9},{score:Infinity},{start:'bad'},{phase:'flight'},{eventIndex:1},{upgrades:{power:3}},{upgrades:{power:1}},{daily:true}])assert.equal(r.validate({...run,...patch}),null);
+  for(const patch of [{version:999},{wave:-1},{wave:1.5},{ammo:9},{score:Infinity},{start:'bad'},{phase:'flight'},{eventIndex:1},{upgrades:{power:3}},{upgrades:{power:1}},{daily:true}])assert.equal(r.validate({...run,...patch}),null);
   assert.equal(r.decode('{bad'),null);assert.equal(r.decode(JSON.stringify({...run,upgrades:JSON.parse('{"__proto__":1}')})),null);
   assert.notEqual(r.recordKey(run),r.recordKey({...run,initialAmmo:4}));
 });
@@ -153,7 +191,8 @@ test('desktop skill key and mobile skill button share real handler; pause blocks
 });
 test('finite physics at high speed and maximal hybrid, normal/low effects identical',()=>{
   const run=r.create('stress','split');run.wave=60;run.upgrades=Object.fromEntries(r.upgrades.map(u=>[u.id,2]));
-  const a=boot(),b=boot();a.t.restore(JSON.stringify(run));b.t.restore(JSON.stringify(run));b.t.configure({low:true});
+  assert.equal(run.version,2);assert.equal(Object.keys(run.upgrades).length,24);assert(r.validate(run));
+  const a=boot(),b=boot();assert(a.t.restore(JSON.stringify(run)));assert(b.t.restore(JSON.stringify(run)));b.t.configure({low:true});
   for(const x of [a,b]){x.t.launch(-100,30,'train');x.t.advance(.6);x.t.skill();x.t.advance(.3);x.t.skill();x.t.advance(13);assert(x.t.snapshot().bodies.every(b=>[b.x,b.y,b.vx,b.vy,b.hp].every(Number.isFinite)));}
   assert.deepEqual(json(a.t.snapshot().bodies),json(b.t.snapshot().bodies));
 });
@@ -184,4 +223,299 @@ test('endless playable progression through 3 waves with actual shots and skills'
   }
   console.log('Endless ordinary shots + skill:',results.join(' '));
 });
-console.log(`\n${passed} suites passed. DOM/Canvas/audio mocked; browser smoke testing is separate.`);
+test('both giant branches clear five curated waves with real aimed shots, skills and earned upgrades',()=>{
+  for(const branch of ['quake','magnet']){
+    const {t}=boot(),results=[];t.startRogue('BONGI','giant');
+    for(let wave=1;wave<=5;wave++){
+      let used=0;
+      while(t.snapshot().state==='ready'&&used<8){
+        const target=t.snapshot().bodies.filter(b=>b.type==='enemy').sort((a,b)=>a.x-b.x||a.y-b.y)[0];
+        const speed=720,time=(target.x-226)/speed;
+        const pullY=(370*time*time-(Math.min(target.y-140,220)-432))/time/8.05;
+        t.target(target.x);assert(t.launch(-speed/8.05,Math.max(3,pullY),null));t.advance(Math.max(.25,time-.12));
+        if(t.rogueSnapshot().run.ultimateCharge===100)t.ultimate();else t.skill();
+        t.advance(14);used++;
+      }
+      results.push(`${wave}:${t.snapshot().state}/${used}`);assert.equal(t.snapshot().state,'won');
+      if(wave<5){
+        const offers=r.offers(t.rogueSnapshot().run);
+        const pick=offers.find(u=>u.id===branch)||offers.find(u=>u.id==='giantReach')||offers.find(u=>u.id==='giantWide')||offers[0];
+        assert(t.choose(pick.id,'normal'));
+      }
+    }
+    console.log(`Giant ${branch}:`,results.join(' '));
+  }
+});
+test('giant milestones guarantee initial / exclusive branch / mutation choices and first full charge',()=>{
+  for(let seed=0;seed<30;seed++)for(const initial of ['giantReach','giantHeight'])for(const branch of ['quake','magnet']){
+    const run=r.create(`milestone-${seed}`,'giant');run.phase='choice';
+    assert.deepEqual(json(assertOffers(r,run).map(u=>u.id).sort()),['giantHeight','giantReach']);
+    assert(!r.giantBuild(run).ultimate);assert.equal(run.ultimateCharge,0);
+    assert(r.advance(run,initial,'normal'));assert.equal(run.wave,2);assert(!r.giantBuild(run).ultimate);
+    run.phase='choice';assert.deepEqual(json(assertOffers(r,run).map(u=>u.id).sort()),['magnet','quake']);
+    assert(r.advance(run,branch,'normal'));assert.equal(run.wave,3);assert.equal(run.ultimateCharge,100);
+    assert.equal(r.giantBuild(run).branch,branch);assert(r.giantBuild(run).ultimate);
+    run.phase='choice';const third=assertOffers(r,run);assert(third.some(u=>u.kind==='branchUpgrade'));
+    assert(!third.some(u=>u.kind==='branch'||u.kind==='mutation'));
+    assert(r.advance(run,third[0].id,'normal'));run.phase='choice';
+    assert.deepEqual(json(assertOffers(r,run).map(u=>u.id).sort()),['giantHeavy','giantWide']);
+    for(const mutation of ['giantWide','giantHeavy']){
+      const fork=json(run);assert(r.advance(fork,mutation,'normal'));assert(r.validate(fork));
+      assert.equal(r.giantBuild(fork).mutation,mutation==='giantWide'?'wide':'heavy');
+      for(let i=0;i<65;i++){
+        fork.phase='choice';const offer=assertOffers(r,fork);
+        assert(!offer.some(u=>u.kind==='branch'||u.kind==='mutation'));
+        assert(r.advance(fork,offer[0]?.id,'normal'));assert(r.validate(fork));
+      }
+      assert.equal(r.offers(fork).length,0);
+    }
+  }
+});
+test('split child and shared stat caps never offer a useless second upgrade; other starts exclude giant nodes',()=>{
+  let sawSplit=false;
+  for(let seed=0;seed<100;seed++){
+    const run=r.create(`split-cap-${seed}`,'split');run.phase='choice';
+    sawSplit ||= assertOffers(r,run).some(u=>u.id==='split');
+    run.wave=6;run.upgrades={split:1,double:1,power:2,focus:1};
+    assert(r.validate(run));assert.equal(r.stats(run).children,3);assert.equal(r.stats(run).charges,2);
+    assert(!assertOffers(r,run).some(u=>u.id==='split'||u.id==='double'));
+  }
+  assert(sawSplit,'first split upgrade remains useful');
+  for(const start of ['explosive','split','speed']){
+    const run=r.create('non-giant',start);
+    for(let i=0;i<60;i++){run.phase='choice';const offer=assertOffers(r,run);assert(offer.every(u=>!u.kind));assert(r.advance(run,offer[0]?.id,'normal'));}
+    assert.equal(r.offers(run).length,0);
+  }
+});
+test('giant build parameters apply branch prerequisites, mutations and bounded enhancements',()=>{
+  const quake=r.giantBuild(giantRun(r,'quake',8,['quakeEcho','quakeReach','giantHeight','giantWide']));
+  assert.equal(quake.plungeReach,300);assert.equal(quake.heightBonus,.28);assert.equal(quake.waveReach,410);
+  assert.equal(quake.impactRadius,150);assert.equal(quake.aftershockCount,1);assert.equal(quake.aftershockDelay,.35);
+  const magnet=r.giantBuild(giantRun(r,'magnet',8,['magnetReach','giantPocket','giantHeavy']));
+  assert.equal(magnet.magnetRadius,240);assert.equal(magnet.magnetLimit,6);assert.equal(magnet.damageMultiplier,1.35);
+  assert.equal(magnet.structureMultiplier,1.5);assert.equal(magnet.aftershockCount,0);
+  const ordinary=r.create('not-a-giant','split');ordinary.wave=3;ordinary.upgrades={giant:2};
+  assert(r.validate(ordinary));assert(!r.giantBuild(ordinary).active);assert(!r.giantBuild(ordinary).ultimate);
+  assert(!r.giantBuild({...r.create('forged','giant'),branch:'quake',mutation:'wide'}).ultimate);
+});
+test('v2 schema rejects malformed giant nodes, prerequisite/exclusivity violations and invalid charge',()=>{
+  const run=giantRun(r,'quake',12,['quakeEcho','giantWide']);
+  assert.deepEqual(json(r.decode(JSON.stringify(run))),json(run));
+  for(const upgrades of [
+    {quake:1,magnet:1},{quake:1,giantWide:1,giantHeavy:1},{quakeEcho:1},{magnetReach:1},
+    {quake:1,giantPocket:1},{magnet:1,quakeReach:1},{giantWide:1},{giantReach:2},
+    {quake:0},{quake:-1},{quake:1.5},{quake:'1'},{quake:true},{unknown:1},[],null,
+    JSON.parse('{"__proto__":1}'),JSON.parse('{"constructor":1}')
+  ])assert.equal(r.validate({...run,upgrades}),null,`invalid nodes ${JSON.stringify(upgrades)}`);
+  for(const charge of [undefined,null,-1,101,1.5,'100',true,NaN,Infinity])assert.equal(r.validate({...run,ultimateCharge:charge}),null,`charge ${charge}`);
+  for(const charge of [0,1,99,100])assert(r.validate({...run,ultimateCharge:charge}));
+  assert.equal(r.validate({...run,start:'split'}),null);
+  assert.equal(r.validate({...r.create('locked','giant'),ultimateCharge:1}),null);
+  for(const [wave,upgrades] of [[1,{giantReach:1}],[2,{quake:1}],[3,{quake:1,quakeEcho:1}],[4,{quake:1,giantWide:1}]]){
+    assert.equal(r.validate({...run,wave,upgrades,ultimateCharge:0}),null,`node before cleared milestone ${wave}`);
+  }
+  assert.equal(r.validate({...run,wave:5,upgrades:{giantReach:1,quake:1,quakeEcho:1,giantWide:1,power:1}}),null,'too many picks');
+});
+test('v1 migration preserves original 24 upgrades, clears charge and catches up via real milestone offers',()=>{
+  for(const start of Object.keys(r.starts)){
+    const legacy={...r.create('legacy',start),version:1,wave:60,upgrades:Object.fromEntries(r.upgrades.map(u=>[u.id,2]))};
+    delete legacy.ultimateCharge;
+    const migrated=r.decode(JSON.stringify(legacy));assert(migrated);assert.equal(migrated.version,2);
+    assert.deepEqual(json(migrated.upgrades),legacy.upgrades);assert.equal(migrated.ultimateCharge,0);assert(r.validate(migrated));
+    assert.match(r.recordKey(migrated),/^v2:/);
+    const {t}=boot();assert(t.restore(JSON.stringify(legacy)));assert.equal(t.rogueSnapshot().run.version,2);
+    if(start==='giant'){
+      assert(!r.giantBuild(migrated).ultimate);migrated.phase='choice';
+      assert.deepEqual(json(assertOffers(r,migrated).map(u=>u.id).sort()),['magnet','quake']);
+      assert(r.advance(migrated,'quake','normal'));assert.equal(migrated.ultimateCharge,100);
+      migrated.phase='choice';assert(assertOffers(r,migrated).every(u=>u.kind==='mutation'));
+    }
+    assert.equal(r.decode(JSON.stringify({...legacy,upgrades:{quake:1}})),null,'v1 cannot smuggle special nodes');
+  }
+});
+test('five curated giant arenas are distinct, deterministic, bounded and idle-stable (including daily)',()=>{
+  const {t}=boot(),names=new Set(),layouts=new Set();
+  for(let wave=1;wave<=5;wave++){
+    const run=r.create('arena','giant');run.wave=wave;
+    const layout=r.layout(run);names.add(layout.name);layouts.add(JSON.stringify(layout.bodies));
+    assert.equal(layout.template,12+wave-1);assert(layout.bodies.length<50);assert(layout.bodies.some(b=>b.type==='enemy'));
+    assert(layout.bodies.every(b=>Number.isFinite(b.x)&&Number.isFinite(b.y)&&b.x>=600&&b.x<=1200&&b.y>0&&b.y<=604));
+    assert.equal(layout.elite,wave===5);assert(!layout.boss);
+    for(const daily of [false,true]){
+      const other={...run,seed:daily?'daily-2026-09-29':'other-seed',daily};
+      assert.deepEqual(json(r.layout(other)),json(layout));assert(t.restore(JSON.stringify(other)));
+      const before=json(t.snapshot().bodies);t.advance(5);assert.deepEqual(json(t.snapshot().bodies),before);
+      assert.equal(t.rogueSnapshot().giantLandings,0);assert.equal(t.snapshot().state,'ready');
+    }
+  }
+  assert.equal(names.size,5);assert.equal(layouts.size,5);
+  const later=giantRun(r,'quake',6);assert(r.layout(later).template<12,'wave six returns to seeded templates');
+});
+test('plunge target changes real horizontal velocity and stays inside reachable bounds',()=>{
+  for(const [target,sign] of [[400,-1],[1000,1]]){
+    const {t}=boot();assert(t.restore(JSON.stringify(giantRun(r))));assert(t.launch(-90,35,null));
+    const p=projectile(t);t.setBody(p.id,{x:700,y:200,vx:0,vy:0});assert(t.target(target));
+    assert(t.skill());const plunging=projectile(t);
+    assert(plunging.plunging);assert.equal(Math.sign(plunging.vx),sign);assert(plunging.vy>=950);
+    assert(Math.abs(plunging.plungeX-700)<=300);assert.equal(Math.sign(plunging.plungeX-700),sign);
+    assert(!t.skill());t.advance(.05);assert.equal(Math.sign(projectile(t).x-700),sign);
+  }
+  const {t}=boot();assert(t.target(-100));assert.equal(t.rogueSnapshot().giantTarget,400);
+  assert(t.target(9999));assert.equal(t.rogueSnapshot().giantTarget,1200);assert(!t.target(NaN));assert(!t.target(Infinity));
+});
+test('real plunge landing damages a nearby non-contact target, not the whole arena',()=>{
+  const {t}=boot();t.startRogue('local-plunge','giant');
+  const [near,far]=t.snapshot().bodies.filter(b=>b.type==='enemy');
+  t.setBody(near.id,{x:590,y:579,hp:10000,maxHp:10000});t.setBody(far.id,{x:1150,y:577,hp:10000,maxHp:10000});
+  assert(t.launch(-90,35,null));t.setBody(projectile(t).id,{x:500,y:200,vx:0,vy:0});t.target(500);
+  assert(t.skill());assert.equal(liveBody(t,near.id).hp,10000,'no immediate remote damage');
+  until(t,s=>s.giantLandings===1,1);
+  assert(liveBody(t,near.id).hp<10000,'landing splash reaches nearby target outside contact radius');
+  assert.equal(liveBody(t,far.id).hp,10000);assert(!projectile(t).plunging);
+  assert.equal(t.rogueSnapshot().giantWaves,0);assert.equal(t.rogueSnapshot().giantEchoes,0);
+  t.advance(2);assert.equal(t.rogueSnapshot().giantLandings,1);assert.equal(t.rogueSnapshot().run.ultimateCharge,0);
+});
+test('quake landing emits a finite ground wave and exactly one delayed echo',()=>{
+  const {t}=boot();assert(t.restore(JSON.stringify(giantRun(r,'quake',4,['quakeEcho']))));
+  assert(t.launch(-90,35,null));t.setBody(projectile(t).id,{x:400,y:200,vx:0,vy:0});t.target(400);assert(t.skill());
+  until(t,s=>s.giantLandings===1,1);assert.equal(t.rogueSnapshot().giantWaves,1);assert.equal(t.rogueSnapshot().giantEchoes,1);
+  t.advance(.3);assert.equal(t.rogueSnapshot().giantEchoes,1);
+  until(t,s=>s.giantEchoes===0,.1);assert.equal(t.rogueSnapshot().giantWaves,1,'one delayed echo is now travelling');
+  t.advance(1);assert.equal(t.rogueSnapshot().giantWaves,0);assert.equal(t.rogueSnapshot().giantEchoes,0);
+  assert.equal(t.rogueSnapshot().giantLandings,1);
+});
+test('ultimate makes three finite local landings, restores radius and cannot reactivate without charge',()=>{
+  for(const branch of ['quake','magnet'])for(const manualFinish of [false,true]){
+    const {t}=boot();assert(t.restore(JSON.stringify(giantRun(r,branch))));
+    const near=t.snapshot().bodies.find(b=>b.kind==='mud'),far=t.snapshot().bodies.find(b=>b.kind==='shield');assert(near&&far);
+    t.setBody(near.id,{x:510,y:579,hp:10000,maxHp:10000});const farHp=far.hp;
+    assert(t.launch(-90,35,null));const normalRadius=projectile(t).r;
+    t.setBody(projectile(t).id,{x:400,y:200,vx:0,vy:0});t.target(400);
+    assert(t.ultimate());assert.equal(t.rogueSnapshot().run.ultimateCharge,0);assert(projectile(t).r>normalRadius);
+    assert(projectile(t).ultimate&&projectile(t).plunging);assert(!t.ultimate());assert(!t.skill());
+    until(t,s=>s.giantLandings===1,1);assert.equal(projectile(t).bounces,1);
+    assert(liveBody(t,near.id).hp<10000);assert.equal(liveBody(t,far.id).hp,farHp);
+    until(t,s=>s.giantLandings===2,3);assert.equal(projectile(t).bounces,2);
+    if(manualFinish){t.advance(.25);assert(t.ultimate());assert(!t.ultimate());}
+    until(t,s=>s.giantLandings===3,3);
+    assert(!projectile(t).ultimate);assert.equal(projectile(t).r,normalRadius);assert.equal(projectile(t).bounces,2);
+    assert(!t.ultimate());assert.equal(liveBody(t,far.id).hp,farHp);
+    t.advance(14);assert.notEqual(t.snapshot().state,'flight');assert.equal(t.rogueSnapshot().giantLandings,3);
+    assert(!t.ultimate());assert(t.rogueSnapshot().run.ultimateCharge<=40);
+  }
+});
+test('keyboard Q and mobile ultimate button use the same handler; pause and key repeat block activation',()=>{
+  const keyboard=boot(),mobile=boot();
+  for(const h of [keyboard,mobile]){
+    assert(h.t.restore(JSON.stringify(giantRun(h.r,'magnet'))));assert(!h.t.ultimate());
+    assert(h.t.launch(-90,35,null));h.t.advance(.3);h.t.target(500);
+    h.e.get('pauseBtn').click();const before=json(h.t.rogueSnapshot());
+    h.document.emit('keydown',{code:'KeyQ',repeat:false,target:h.e.get('gameCanvas')});h.e.get('ultimateBtn').click();assert(!h.t.ultimate());
+    h.t.advance(1);assert.deepEqual(json(h.t.rogueSnapshot()),before);h.e.get('resumeBtn').click();
+    h.document.emit('keydown',{code:'KeyQ',repeat:true,target:h.e.get('gameCanvas')});assert(!projectile(h.t).ultimate);
+  }
+  keyboard.document.emit('keydown',{code:'KeyQ',repeat:false,target:keyboard.e.get('gameCanvas')});mobile.e.get('ultimateBtn').click();
+  assert(projectile(keyboard.t).ultimate);assert(projectile(mobile.t).ultimate);
+  assert.deepEqual(json(keyboard.t.rogueSnapshot()),json(mobile.t.rogueSnapshot()));
+  for(const h of [keyboard,mobile])h.t.advance(.4);
+  assert.deepEqual(json(keyboard.t.rogueSnapshot()),json(mobile.t.rogueSnapshot()));
+  assert.deepEqual(json(keyboard.t.snapshot().bodies),json(mobile.t.snapshot().bodies));
+});
+test('magnet collects only bounded nearby debris and releases the same real blocks on landing',()=>{
+  for(const pocket of [false,true]){
+    const {t}=boot(),run=giantRun(r,'magnet',5,pocket?['giantPocket']:[]);
+    assert(r.validate(run));assert(t.restore(JSON.stringify(run)));
+    const blocks=t.snapshot().bodies.filter(b=>b.type==='block');assert(blocks.length>=9);
+    // Seven separated fragments of real block bodies, not injected cargo/ability flags.
+    // Include a damaged, moving 64x24 fragment to exercise the second eligibility path.
+    const pieces=blocks.slice(0,7),far=blocks[7],intact=blocks[8];
+    pieces.forEach((b,i)=>{const angle=i*Math.PI*2/7;t.setBody(b.id,{x:450+Math.cos(angle)*70,y:250+Math.sin(angle)*70,w:i===0?64:28,h:24,hp:10000,maxHp:i===0?20000:10000,sleeping:i!==0});});
+    t.setBody(far.id,{x:950,y:250,w:28,h:24,hp:10000,maxHp:10000});
+    t.setBody(intact.id,{x:570,y:250,w:24,h:108,hp:10000,maxHp:10000,sleeping:true});
+    assert(t.launch(-90,35,null));t.setBody(projectile(t).id,{x:450,y:250,vx:0,vy:0});t.target(450);assert(t.skill());t.advance(1/120);
+    assert.equal(projectile(t).cargo,pocket?6:4);assert.equal(t.rogueSnapshot().shotCharge,0,'collecting is not destroying');
+    const carried=pieces.filter(b=>!liveBody(t,b.id));assert.equal(carried.length,pocket?6:4);
+    assert(carried.some(b=>b.id===pieces[0].id),'nearby damaged moving fragment is eligible');
+    assert(liveBody(t,far.id));assert.equal(liveBody(t,far.id).vx,0);assert.equal(liveBody(t,far.id).vy,0);
+    assert(liveBody(t,intact.id));assert.equal(liveBody(t,intact.id).vx,0,'intact structural support is not attracted');
+    until(t,s=>s.giantLandings===1,1);assert.equal(projectile(t).cargo,0);
+    for(const b of carried){const released=liveBody(t,b.id);assert(released,`released real block ${b.id}`);assert.equal(released.type,'block');assert(Math.hypot(released.vx,released.vy)>0);}
+  }
+});
+test('magnet reach upgrade attracts a loose piece at 200px but baseline radius does not',()=>{
+  for(const enhanced of [false,true]){
+    const {t}=boot(),run=giantRun(r,'magnet',4,enhanced?['magnetReach']:[]);assert(t.restore(JSON.stringify(run)));
+    const layout=r.layout(run),spec=layout.bodies.find(b=>b.type==='block'&&b.w<=60&&b.h<=60);assert(spec);
+    const piece=t.snapshot().bodies.find(b=>b.type==='block'&&b.x===spec.x&&b.y===spec.y);assert(piece);
+    t.setBody(piece.id,{x:700,y:250});assert(t.launch(-90,35,null));t.setBody(projectile(t).id,{x:500,y:250,vx:0,vy:0});
+    t.target(500);assert(t.skill());t.advance(1/120);
+    assert.equal(projectile(t).cargo,0,'attraction is not remote instant capture');
+    if(enhanced)assert(liveBody(t,piece.id).vx<0,'240px reach pulls the piece toward the giant');
+    else assert.equal(liveBody(t,piece.id).vx,0,'piece beyond 160px remains untouched');
+  }
+});
+test('magnet cannot steal nearby damaged boss relays',()=>{
+  const {t}=boot(),run=giantRun(r,'magnet',10);assert(t.restore(JSON.stringify(run)));
+  const relaySpec=r.layout(run).bodies.find(b=>b.relay);const relay=t.snapshot().bodies.find(b=>b.type==='block'&&b.x===relaySpec.x&&b.y===relaySpec.y);assert(relay);
+  t.setBody(relay.id,{x:450,y:250,hp:relay.hp/2,sleeping:false});
+  assert(t.launch(-90,35,null));t.setBody(projectile(t).id,{x:400,y:250,vx:0,vy:0});t.target(400);assert(t.skill());t.advance(1/120);
+  assert.equal(projectile(t).cargo,0);assert(liveBody(t,relay.id));assert.equal(liveBody(t,relay.id).vx,0);
+});
+test('landing grants six charge once; ordinary repeated contacts do not farm charge',()=>{
+  const {t}=boot(),run=giantRun(r,'magnet');run.ultimateCharge=0;assert(t.restore(JSON.stringify(run)));
+  assert(t.launch(-90,35,null));const id=projectile(t).id;t.setBody(id,{x:400,y:200,vx:0,vy:0});t.target(400);assert(t.skill());
+  until(t,s=>s.giantLandings===1,1);assert.equal(t.rogueSnapshot().shotCharge,6);assert.equal(t.rogueSnapshot().run.ultimateCharge,6);
+  // Re-contact the floor at ordinary physical velocities without rearming the skill.
+  for(let i=0;i<4;i++){t.setBody(id,{x:400,y:510,vx:0,vy:500});t.advance(.15);assert.equal(t.rogueSnapshot().shotCharge,6);assert.equal(t.rogueSnapshot().giantLandings,1);}
+  t.advance(14);assert.equal(t.rogueSnapshot().run.ultimateCharge,18,'six landing + twelve settlement');
+  t.advance(5);assert.equal(t.rogueSnapshot().run.ultimateCharge,18,'settlement cannot repeat');
+});
+test('charge is bounded 0..100, destruction awards once, action cap28 + end12 and each shot resets its budget',()=>{
+  const {t}=boot(),run=giantRun(r,'magnet',5);run.ultimateCharge=0;assert(t.restore(JSON.stringify(run)));
+  assert(t.launch(-20,100,null));const blocks=t.snapshot().bodies.filter(b=>b.type==='block');assert(blocks.length>=10);
+  let expected=0;
+  for(const b of blocks.slice(0,10)){
+    t.damage(b.id,100000,true);expected=Math.min(28,expected+3);assert.equal(t.rogueSnapshot().shotCharge,expected);
+    t.damage(b.id,100000,true);assert.equal(t.rogueSnapshot().shotCharge,expected,'destroyed block never awards twice');
+    assert.equal(t.rogueSnapshot().run.ultimateCharge,expected);
+  }
+  t.advance(14);assert.equal(t.snapshot().state,'ready');assert.equal(t.rogueSnapshot().run.ultimateCharge,40);
+  t.advance(2);assert.equal(t.rogueSnapshot().run.ultimateCharge,40);
+  assert(t.launch(-20,100,'miss'));assert.equal(t.rogueSnapshot().shotCharge,0);t.advance(2.1);
+  assert.equal(t.rogueSnapshot().run.ultimateCharge,52);
+  for(const charge of [0,95,100]){
+    const h=boot(),boundary=giantRun(h.r,'magnet');boundary.ultimateCharge=charge;assert(h.t.restore(JSON.stringify(boundary)));
+    assert(h.t.launch(-20,100,'miss'));h.t.advance(2.1);assert.equal(h.t.rogueSnapshot().run.ultimateCharge,Math.min(100,charge+12));
+  }
+});
+test('first branch charge and later saved charge survive restart/resume at boundaries, never in-flight spending',()=>{
+  const storage=new Map(),a=boot({storage}),choice=giantRun(a.r,null,2);choice.phase='choice';
+  assert(a.t.restore(JSON.stringify(choice)));assert(a.t.choose('quake','normal'));
+  assert.equal(a.t.rogueSnapshot().run.ultimateCharge,100);const first=a.t.checkpoint();assert.equal(JSON.parse(first).ultimateCharge,100);
+  assert(a.t.launch(-90,35,null));a.t.advance(.3);assert(a.t.ultimate());assert.equal(a.t.rogueSnapshot().run.ultimateCharge,0);
+  assert.equal(a.t.checkpoint(),first);a.t.restart();assert.equal(a.t.rogueSnapshot().run.ultimateCharge,100);assert.equal(a.t.rogueSnapshot().giantLandings,0);
+  const b=boot({storage});assert(b.t.resumeRogue());assert.equal(b.t.rogueSnapshot().run.ultimateCharge,100);assert.equal(b.t.rogueSnapshot().projectiles.length,0);
+  // Controlled clear tests persistence, not a claim of ordinary-shot playability.
+  assert(b.t.launch(-90,35,null));assert(b.t.ultimate());
+  for(const enemy of b.t.snapshot().bodies.filter(x=>x.type==='enemy'))b.t.damage(enemy.id,100000,true);
+  b.t.advance(1.2);assert.equal(b.t.rogueSnapshot().run.phase,'choice');
+  const charge=b.t.rogueSnapshot().run.ultimateCharge;assert(charge>0&&charge<=40);assert.equal(JSON.parse(b.t.checkpoint()).ultimateCharge,charge);
+  const c=boot({storage});assert(c.t.resumeRogue());assert.equal(c.t.rogueSnapshot().run.ultimateCharge,charge);c.t.restart();assert.equal(c.t.rogueSnapshot().run.ultimateCharge,charge);
+  const offer=assertOffers(c.r,c.t.rogueSnapshot().run);assert(c.t.choose(offer[0].id,'normal'));assert.equal(c.t.rogueSnapshot().run.ultimateCharge,charge);
+});
+test('giant plunge, ultimate, echo and magnet physics are identical with reduced effects',()=>{
+  for(const [branch,nodes] of [['quake',['quakeEcho','quakeReach','giantWide']],['magnet',['magnetReach','giantPocket','giantHeavy']]]){
+    const a=boot(),b=boot(),run=giantRun(r,branch,8,nodes);
+    for(const [h,low] of [[a,false],[b,true]]){
+      assert(h.t.restore(JSON.stringify(run)));h.t.configure({low});assert(h.t.launch(-90,35,null));h.t.advance(.7);h.t.target(850);assert(h.t.ultimate());
+    }
+    for(let i=0;i<50;i++){
+      a.t.advance(.1);b.t.advance(.1);
+      assert.deepEqual(json(a.t.rogueSnapshot()),json(b.t.rogueSnapshot()));assert.deepEqual(json(a.t.snapshot().bodies),json(b.t.snapshot().bodies));
+      for(const h of [a,b]){const s=h.t.rogueSnapshot();assert(s.giantWaves<=8&&s.giantEchoes<=4&&s.shotCharge<=28);assert(s.run.ultimateCharge>=0&&s.run.ultimateCharge<=100);}
+    }
+    assert(a.t.rogueSnapshot().giantLandings>0);
+  }
+});
+console.log(`\n${passed} suites passed; ${failures.length} failed. DOM/Canvas/audio mocked; browser smoke testing is separate.`);
+if(failures.length){console.error('Failing suites:',failures.join('\n'));process.exitCode=1;}

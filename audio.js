@@ -50,9 +50,9 @@
   const voices = new Set();
   const lastPlayed = new Map();
   const limits = { launch: 160, hit: 65, pop: 80, shield: 130, bomb: 300,
-    win: 1200, loss: 1200, event: 700 };
+    win: 1200, loss: 1200, event: 700, giantBounce: 250 };
   const costs = { launch: 3, hit: 2, pop: 2, shield: 3, bomb: 3,
-    win: 4, loss: 3, event: 3 };
+    win: 4, loss: 3, event: 3, giantBounce: 2 };
 
   const paused = () => gamePaused || hidden;
   const message = error => error && error.message ? error.message : String(error || 'Playback failed');
@@ -380,6 +380,10 @@
     if (!canSfx) return true;
     try {
       switch (kind) {
+        case 'giantBounce':
+          layer('triangle', 160, 680, 0.24, 0.3, 1800);
+          layer('sine', 620, 170, 0.32, 0.32, 1600, 0.12);
+          break;
         case 'launch':
           layer('triangle', 170, 42, 0.46, 0.6, 750);
           layer('noise', 0, 0, 0.3, 0.28, 1700);

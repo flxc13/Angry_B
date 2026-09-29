@@ -47,6 +47,7 @@
           <div class="eyebrow">ISSUE 04 / ENDLESS REMIX</div><h2>無盡街頭 · 越打越難</h2>
           <p>6 發起步，每波 +3（最多 8）· 每 5 波精英／10 波機械頭目。事件固定 28%，有好有壞。</p>
           <label>起始流派 <select id="rogueStart"><option value="explosive">爆破 · 空中引爆</option><option value="giant">巨人 · 重量撞擊</option><option value="split">分裂 · 多彈夾擊</option><option value="speed">極速 · 二段加速</option></select></label>
+          <p class="giant-intro">巨人加餸喇！飛高啲、揀落腳位，再一嘢坐低。清第 2 波揀地震／磁力專精，送一次「巨型彈彈邦」；清第 4 波再揀大技變身！</p>
           <label>本機種子 <input id="rogueSeed" maxlength="64" value="BONGI" aria-label="挑戰種子"></label>
           <label>起始彈藥 <select id="rogueAmmo"><option>4</option><option>5</option><option selected>6</option><option>7</option><option>8</option></select></label>
           <div class="rogue-actions"><button class="button primary" id="endlessBtn">無盡出擊 ↗</button><button class="button secondary" id="dailyBtn">每日挑戰（UTC）</button><button class="button secondary" id="rogueResume">繼續波次存檔</button></div>
@@ -65,7 +66,7 @@
     </section>
 
     <section id="levelScreen" class="level-screen" hidden>
-      <div class="section-heading"><div><div class="eyebrow">FIFTEEN LEVELS / SIX ENEMY KINDS / FOUR SCENES</div><h2>下一站，撞邊個柒頭？</h2><p>十五關挑戰（新增十關）、六種敵人、四款漫畫場景。所有關卡任砌，冇得留手，屌你老母。</p></div><button class="button secondary" id="levelsBack">← 返回</button></div>
+      <div class="section-heading"><div><div class="eyebrow">FIFTEEN LEVELS / SIX ENEMY KINDS / FOUR SCENES</div><h2>下一站，撞邊個柒頭？</h2><p>十五關挑戰（新增十關）、六種敵人、四款漫畫場景。所有關卡任砌，唔使客氣。</p></div><button class="button secondary" id="levelsBack">← 返回</button></div>
       <div id="levelCards" class="level-cards"></div>
     </section>
 
@@ -83,16 +84,31 @@
         <div class="subtitle" id="subtitle" aria-live="polite" hidden></div>
         <div class="aim-hint" id="aimHint"><span>↙</span> 拉住邦基，往後拖，放撚手！</div>
         <div class="power" id="powerMeter" hidden><small>彈射力度</small><div><i id="powerFill"></i></div><b id="powerValue">0%</b></div>
+        <div id="giantQuick" class="giant-quick" hidden>
+          <span id="giantQuickCharge"></span>
+          <button class="button primary" id="plungeBtn" aria-describedby="giantHint">坐低！ · E</button>
+          <button class="button secondary" id="ultimateBtn" aria-describedby="giantChargeText">巨型彈彈邦 · Q</button>
+        </div>
       </div>
       <div class="game-bottom"><span><i class="green-dot"></i><span id="statusText">準備好就拉弓，成條街嘅街坊都等緊你發爛。</span></span><div class="scene-actions"><button class="text-button" id="changeSceneBtn" title="依序切換公園、球場、夜街、太空站；不影響物理">換個背景 ↻</button><button class="text-button" id="gameLevelsBtn">關卡地圖 ↗</button></div></div>
+      <section id="giantHud" class="giant-hud" aria-label="巨人專精操作" hidden>
+        <div class="giant-heading"><strong id="giantBranch"></strong><span id="giantMilestone"></span></div>
+        <div class="giant-controls">
+          <label class="giant-target" for="giantTarget">落腳位，唔好坐錯凳！<input id="giantTarget" type="range" min="400" max="1200" step="10" value="850"><output id="giantTargetValue" for="giantTarget">850</output></label>
+        </div>
+        <ol id="giantTree" class="giant-tree" aria-label="巨人專精路線"></ol>
+        <div class="giant-charge"><progress id="giantCharge" max="100" value="0" aria-label="巨人大技儲氣"></progress><span id="giantChargeText"></span></div>
+        <p id="giantHint">飛緊嗰陣撳畫面揀落腳位，再撳 E／坐低！左右方向鍵都揀得；圈住嘅先係今次去到嘅位，屋頂會截住你㗎。</p>
+        <p id="giantFeedback" role="status" aria-live="polite"></p>
+      </section>
       <p class="keyboard-note">拖曳角色放手發射 · 方向鍵調整 / 空白鍵發射 · Esc 暫停 · R 重試 · 綠霧都可以削弱敵人，臭到佢哋腳軟</p>
       <div id="enemyRoster" role="group" aria-label="本關敵人與能力"></div>
       <div class="rogue-panel" id="rogueHud" hidden><b id="rogueStatus"></b><button class="button primary" id="skillBtn">技能 · E / 空白鍵</button><p id="rogueBuild"></p><small>每發可用技能；升級可混合其他流派。只存波次起點／選路階段，中途離開會重玩該波。R 重開同一波。</small></div>
     </section>
   </main>
-  <footer><span>ANGRY BONGI <b>·</b> 一場唔太冷靜嘅街頭小冒險，粗口橫飛</span><span class="legal-links"><a href="./terms.html">服務條款</a><a href="./privacy.html">隱私權政策</a></span><span>ISSUE 03 / OVERDRIVE <b>✦</b> 完全離線</span></footer>
+  <footer><span>ANGRY BONGI <b>·</b> 一場唔太冷靜嘅街頭小冒險，粗口橫飛</span><span>ISSUE 03 / OVERDRIVE <b>✦</b> 完全離線</span></footer>
 
-  <dialog id="helpDialog"><button class="dialog-close" data-close aria-label="關閉教學">×</button><div class="eyebrow">HOW TO BONGI</div><h2>一拉、一放、一場大混亂，仆街啦你哋！</h2><ol class="instructions"><li><b>抓住車窗內的邦基</b><p>向左下拖動蓄力；白色虛線預覽路線。放開就發射，唔好射失呀柒頭。手機建議橫向遊玩，唔好咁戇鳩。</p></li><li><b>撞敵人，也撞支架</b><p>木樑、玻璃、冧落嚟嘅結構都可以冧低目標。飛行留低嘅綠霧會短暫削弱埋靠近嘅敵人，臭到佢哋暈，屌你老母。</p></li><li><b>善用每一次出窗</b><p>最後一發嗰陣，差佬會喺路邊等緊你。全部目標冧低即過關；用晒啲發射就會俾人禮貌咁帶走，冚家剷。</p></li></ol><div class="notice">戰役保留可調事件機率，另加逆風、重力、薄霧、助推、護罩及補給。無盡／每日固定 28%，不含強制 MISS 或全畫布模糊。火車只會局部撞擊和爆破，不再自動清場。</div><p class="dialog-small">方向鍵：調整力度 / 仰角。空白鍵：發射；無盡飛行中 E / 空白鍵／技能按鈕：技能。Esc / P：暫停。R：重試波次起點。無盡每波揀升級及普通／精英／補給路線。所有配角均為成年卡通角色；小販只針對你嘅遊戲技術吐槽，唔係針對你個人，唔好嬲。</p><button class="button primary full" data-close>明白，準備出撚窗！</button></dialog>
+  <dialog id="helpDialog"><button class="dialog-close" data-close aria-label="關閉教學">×</button><div class="eyebrow">HOW TO BONGI</div><h2>一拉、一放、一場大混亂，仆街啦！</h2><ol class="instructions"><li><b>抓住車窗內的邦基</b><p>向左下拖動蓄力；白色虛線預覽路線。放開就發射，唔好射失呀柒頭。手機建議橫向遊玩。</p></li><li><b>撞敵人，也撞支架</b><p>木樑、玻璃、冧落嚟嘅結構都可以冧低目標。飛行留低嘅綠霧會短暫削弱埋靠近嘅敵人，臭到佢哋暈。</p></li><li><b>善用每一次出窗</b><p>最後一發嗰陣，差佬會喺路邊等緊你。全部目標冧低即過關；用晒啲發射就會俾人禮貌咁帶走，丟架。</p></li></ol><div class="notice">戰役保留可調事件機率，另加逆風、重力、薄霧、助推、護罩及補給。無盡／每日固定 28%，不含強制 MISS 或全畫布模糊。火車只會局部撞擊和爆破，不再自動清場。</div><p class="dialog-small">方向鍵：調整力度 / 仰角。空白鍵：發射；無盡飛行中 E / 空白鍵／技能按鈕：技能。Esc / P：暫停。R：重試波次起點。無盡每波揀升級及普通／精英／補給路線。所有配角均為成年卡通角色；小販只針對你嘅遊戲技術吐槽，唔係針對你個人，唔好嬲。</p><button class="button primary full" data-close>明白，準備出撚窗！</button></dialog>
   <dialog id="bestiaryDialog" aria-label="敵人圖鑑">
     <button class="dialog-close" data-close aria-label="關閉敵人圖鑑">×</button>
     <div class="eyebrow">CAMPAIGN + ENDLESS / KNOW YOUR ENEMY</div>
@@ -124,6 +140,6 @@
   </dialog>
   <dialog id="pauseDialog"><div class="eyebrow">TAKE A BREATHER</div><h2>邦基暫時冷靜緊。</h2><p>遊戲暫停咗，毒霧都唞下先，唔好咁燥。</p><button class="button primary full" id="resumeBtn">繼續砌 →</button><button class="button secondary full" id="pauseRestart">重新開始本關</button><button class="text-button full" id="pauseHome">返回標題</button></dialog>
   <dialog id="resultDialog" class="result-dialog"><div id="resultStamp" class="result-stamp">✓</div><div class="eyebrow" id="resultEyebrow">STREET CLEARED</div><h2 id="resultTitle">全場清空！</h2><p id="resultMessage"></p><div class="result-stats"><div><small>本關得分</small><b id="resultScore">0</b></div><div><small>歷史最佳</small><b id="resultBest">0</b></div></div><div id="resultStars" class="result-stars" aria-label="星等">★★★</div><button class="button primary full" id="nextBtn">下一關 →</button><button class="button secondary full" id="retryBtn">再嚟一次 ↻</button><button class="text-button full" id="resultLevels">選擇關卡</button></dialog>
-  <dialog id="rogueChoice" aria-labelledby="rogueChoiceTitle"><div class="eyebrow">BUILD × ROUTE</div><h2 id="rogueChoiceTitle">過關！揀升級，再揀路線</h2><div id="upgradeChoices"></div><label>下一站 <select id="routeChoice"><option value="normal">普通 · 標準難度</option><option value="elite">精英 · 更硬敵人，得分 ×1.5</option><option value="supply">補給 · 額外 +2 彈藥，敵人 +10% 強度</option></select></label><p id="choiceSummary"></p><button class="button primary full" id="rogueContinue">確認，下一波 →</button><button class="text-button full" id="rogueSaveHome">保留存檔，返回標題</button></dialog>
+  <dialog id="rogueChoice" aria-labelledby="rogueChoiceTitle"><div class="eyebrow">BUILD × ROUTE</div><h2 id="rogueChoiceTitle">過關！揀升級，再揀路線</h2><p id="giantChoiceHint" class="giant-intro" hidden></p><div id="upgradeChoices"></div><label>下一站 <select id="routeChoice"><option value="normal">普通 · 標準難度</option><option value="elite">精英 · 更硬敵人，得分 ×1.5</option><option value="supply">補給 · 額外 +2 彈藥，敵人 +10% 強度</option></select></label><p id="choiceSummary"></p><button class="button primary full" id="rogueContinue">確認，下一波 →</button><button class="text-button full" id="rogueSaveHome">保留存檔，返回標題</button></dialog>
 </body>
 </html>
