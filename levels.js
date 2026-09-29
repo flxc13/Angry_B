@@ -18,7 +18,7 @@
     return [
       {
         title: '安全帽試工日', area: '紙板工地', chapter: 2, shots: 5, color: '#efdc9e',
-        description: '先撞前排安全帽破盾，或者拆玻璃腳等高處啲友跌落嚟；後排冇封牆，任砌。',
+        description: '先撞前排安全帽破盾，或者拆玻璃腳等高處啲柒頭跌落嚟；後排冇封牆，任砌，屌你老母。',
         build: () => [
           ...tower(820, 152, GROUND, 'glass'),
           perch(678, GROUND, 'helmet'), perch(820), perch(820, deck, 'helmet'), perch(1020, GROUND, 'vendor')
@@ -26,7 +26,7 @@
       },
       {
         title: '汽水裝卸站', area: '泡泡貨場', chapter: 2, shots: 5, color: '#bce3cf',
-        description: '左架汽水同地面汽水貼到實一實；先引爆一鑊，再慢慢收拾右邊嗰個嘴臭小販。',
+        description: '左架汽水同地面汽水貼到實一實；先引爆一鑊，再慢慢收拾右邊嗰個嘴臭小販，冚家剷。',
         build: () => [
           ...tower(754, 136, GROUND, 'glass'), ...tower(1010, 180),
           perch(754, deck, 'soda'), perch(851, GROUND, 'soda'),

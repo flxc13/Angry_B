@@ -3,19 +3,19 @@
   'use strict';
 
   const types = {
-    mud: { name: '泥臭臭', hp: 64, r: 25, mass: 1.1, points: 1000, description: '普通泥臭臭，廢柴一隻，撞冧支架就搞撚掂。', color: '#9caa61' },
-    vendor: { name: '小販', hp: 64, r: 27, mass: 1.1, points: 1000, description: '嘴硬小販，把口臭過鹹魚，小心腳下啲支架。', color: '#cb8d5d' },
-    performer: { name: '脫衣舞女', hp: 64, r: 25, mass: 1.1, points: 1000, description: '小心仙人跳，俾人報警拉撚咗就唔好啦。', color: '#af83b4' },
-    helmet: { name: '職安真漢子', hp: 90, r: 27, mass: 1.3, points: 1250, description: '護盾擋到一鑊撞擊或爆破；毒霧可以穿盾，盾一破就隨便砌佢。', color: '#a6ad69' },
-    soda: { name: '汽水背包泥臭臭', hp: 55, r: 25, mass: 1.1, points: 1250, description: '擊倒後汽水爆撚開，附近啲敵人同支架冚唪唥一齊遭殃。', color: '#63bba2' },
-    brute: { name: '重裝泥臭臭', hp: 200, r: 36, mass: 2.5, points: 2000, description: '大型重裝頭目，硬淨到鬼咁；靠墜落、支架同汽水連鎖先砌得低佢。', color: '#9870b5' }
+    mud: { name: '泥臭臭', hp: 64, r: 25, mass: 1.1, points: 1000, description: '普通泥臭臭，廢柴一隻，撞冧支架就搞掂，屌你老母。', color: '#9caa61' },
+    vendor: { name: '泰國小販', hp: 64, r: 27, mass: 1.1, points: 1000, description: '嘴硬小販，屌你老母咁臭，腳下支架一撞就散。', color: '#cb8d5d' },
+    performer: { name: '脫衣舞女', hp: 64, r: 25, mass: 1.1, points: 1000, description: '小心仙人跳，俾人報警拉咗就冇得搞，唔好再咁戇鳩。', color: '#af83b4' },
+    helmet: { name: '職安真漢子', hp: 90, r: 27, mass: 1.3, points: 1250, description: '護盾擋到一鑊撞擊或爆破；毒霧一穿盾就冇得撐，屌你老母。', color: '#a6ad69' },
+    soda: { name: '汽水背包泥臭臭', hp: 55, r: 25, mass: 1.1, points: 1250, description: '擊倒後汽水爆撚開，附近啲敵人同支架冚家剷一齊散。', color: '#63bba2' },
+    brute: { name: '重裝泥臭臭', hp: 200, r: 36, mass: 2.5, points: 2000, description: '大型重裝頭目，硬到仆街；靠墜落、支架同汽水連鎖先砌得低佢。', color: '#9870b5' }
   };
   const INK = '#263344';
   Object.assign(types,{
-    shield:{name:'護盾兵',hp:110,r:28,mass:1.5,points:1400,color:'#6bb8d5',description:'一次護盾擋撞擊與爆破；毒霧可穿盾。'},
-    repair:{name:'維修兵',hp:90,r:25,mass:1.2,points:1500,color:'#78c4a0',description:'附近 210 範圍每 2 秒修復 28 HP，每波最多兩次，不會復活。'},
-    commander:{name:'指揮官',hp:160,r:30,mass:1.7,points:1800,color:'#d794ba',description:'附近 220 範圍友軍減傷 25%；先擊倒指揮官解除。'},
-    boss:{name:'機械核心',hp:520,r:42,mass:4,points:5000,color:'#e6ae52',description:'每 10 波出現；兩根電力支柱維持護甲。拆柱或抓住每 3 秒一次的 1 秒開放窗口。'}
+    shield:{name:'盾泥臭臭',hp:110,r:28,mass:1.5,points:1400,color:'#6bb8d5',description:'一次護盾擋撞擊與爆破；毒霧太撚臭可以穿盾，屌你老母。'},
+    repair:{name:'Engine仔泥臭臭',hp:90,r:25,mass:1.2,points:1500,color:'#78c4a0',description:'附近 210 範圍每 2 秒修復 28 HP，每波最多兩次，唔好咁撚廢弱。'},
+    commander:{name:'指揮官泥臭臭',hp:160,r:30,mass:1.7,points:1800,color:'#d794ba',description:'附近 220 範圍友軍減傷 25%；先擊倒指揮官解除，冚家剷。'},
+    boss:{name:'爆氣核心',hp:520,r:42,mass:4,points:5000,color:'#e6ae52',description:'每 10 波出現；兩根電力支柱維持護甲。拆柱或抓住開放窗口，屌你老母真係猛。'}
   });
   const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
@@ -166,8 +166,8 @@
         }
       } finally { ctx.restore(); }
       // Upright status plates stay readable even when a body tumbles.
-      const label = ['shield','repair','commander','boss'].includes(b.kind)?`${def.name}${b.kind==='shield'?(b.shield?' · 有盾':' · 盾破'):''}`:b.kind === 'helmet' ? (b.shield ? '安全帽 · 擋一鑊' : '盾破 · 砌佢啦！')
-        : b.kind === 'soda' ? '汽水 · 一冧就爆' : '重裝 · 硬到鬼';
+      const label = ['shield','repair','commander','boss'].includes(b.kind)?`${def.name}${b.kind==='shield'?(b.shield?' · 有盾':' · 盾破'):''}`:b.kind === 'helmet' ? (b.shield ? '安全帽 · 擋一鑊' : '盾爆撚坐 · 砌佢啦！')
+        : b.kind === 'soda' ? '汽水 · 一Chok就爆' : '重裝 · 硬到扯曬旗！';
       const top = -r * 1.62 - 24, width = b.kind === 'brute' ? 90 : 86;
       box(ctx, -width / 2, top, width, 17, '#fff6dd', INK, 1.4);
       text(ctx, label, 0, top + 8.5, 10, vulnerable ? '#a34438' : INK);

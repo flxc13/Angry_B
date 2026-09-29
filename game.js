@@ -9,18 +9,18 @@
   const TAU = Math.PI * 2;
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
   const rand = (min, max) => min + Math.random() * (max - min);
-  const quotes = ['屌你個肺！撞埋先講！', '係咪唔玩得?', '一出黎就死!一出黎就死!', '唔撚玩啦', 'u u wa wa uwa', '仆街啦你哋！', '食屎啦！冚唪唥！', '死開啲，唔好阻撚住晒！', '頂你個肺，再嚟多次！', '痴撚線！邊個整飛我副眼鏡？', '你老味！今次大鑊喇！', '戇鳩鳩，企定啲嚟砌！'];
+  const quotes = ['屌你老母！撞死你班撚樣！', '係咪唔撚玩得？', '一出嚟就死，屌！', '唔撚玩啦，戇鳩！', 'u u wa wa uwa', '仆街啦你哋！', '食屎啦！冚家剷！', '死撚開啲，唔好阻住我砌！', '頂你個肺，再嚟多次！', '痴撚線！邊個整飛我個眼鏡？', '柒頭，企定啲，唔好咁戇鳩！', '屌你老母，今次真係大含撚喇！'];
   const events = {
-    miss: { title: '送撚咗頭！', detail: '方向失控 · 今次直接 MISS，丟撚架！', icon: '↖' },
-    glasses: { title: '眼鏡都飛撚埋！', detail: '睇唔撚清呀！模糊 2.4 秒後恢復', icon: '◎' },
-    pants: { title: '褲子爆撚開！', detail: '安全底褲仲喺度 · 彈射力 +28%，好肉酸呀！', icon: '✦' },
-    train: { title: '化身火車頭！', detail: '高速實體撞擊 · 首次接觸爆破半徑 135，非全場清除', icon: '▣' },
-    headwind: { title: '迎面逆風', detail: '今發水平速度 -10%，仍可使用技能修正', icon: '↤' },
-    heavy: { title: '重力行李', detail: '今發重力 +12%，沒有強制射失', icon: '↓' },
-    fog: { title: '薄霧來襲', detail: '2 秒淡霧；目標輪廓及瞄準仍可見', icon: '≋' },
-    boost: { title: '順風助推', detail: '今發速度 +12%', icon: '↗' },
-    shield: { title: '幸運護罩', detail: '抵擋下一次不利事件（最多 2 層）', icon: '◇' },
-    bonus: { title: '街坊補給', detail: '立即 +1 發，最多 8 發', icon: '+' }
+    miss: { title: '送撚咗頭！', detail: '方向失控 · 今次直接 MISS，俾你老母笑撚到仆街！', icon: '↖' },
+    glasses: { title: '眼鏡飛撚埋！', detail: '睇唔撚清呀！模糊 2.4 秒後恢復，屌你老母', icon: '◎' },
+    pants: { title: '條褲爆撚左軚！', detail: '底褲仲喺度 · 彈射力 +28%，好撚肉酸呀！', icon: '✦' },
+    train: { title: '化身火車頭！', detail: '高速實體撞擊 · 首次接觸爆破半徑 135，唔使咁戇鳩', icon: '▣' },
+    headwind: { title: '性無能', detail: '今發水平速度 -10%，但你仲有得屌，唔使咁死氣', icon: '↤' },
+    heavy: { title: '好撚重呀', detail: '今發重力 +12%，冇強制射失，但你都識屌', icon: '↓' },
+    fog: { title: '霧霾來襲', detail: '2 秒淡霧；目標輪廓及瞄準仍可見，唔好再瞎撚咁砌', icon: '≋' },
+    boost: { title: '瘋狂射精', detail: '大爆射，今發速度 +12%，屌你老母猛！', icon: '↗' },
+    shield: { title: 'Lady Boy加護', detail: '抵擋下一次不利事件（最多 2 層），唔好屌你老母咁弱', icon: '◇' },
+    bonus: { title: '泰國小販補給', detail: '立即 +1 發，最多 8 發，屌你老母有得打', icon: '+' }
   };
   const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
   const art = window.BongiArt;
@@ -79,13 +79,13 @@
     return [block(x - width / 2 + 12, base - 54, 24, 108, material), block(x + width / 2 - 12, base - 54, 24, 108, material), block(x, base - 119, width + 30, 22, material)];
   }
   const levels = [
-    { title: '初次出窗', area: '薄荷街', description: '先熱下身，撞撚散街角啲紙皮架先。', shots: 4, color: '#dce9c3',
+    { title: '初次跳車', area: '薄荷街', description: '先熱下身，撞撚散街角啲紙皮架先。', shots: 4, color: '#dce9c3',
       build: () => [...tower(822), enemy(822, 576), enemy(822, 446)] },
-    { title: '玻璃心小販', area: '午後夜市', description: '小販把口咁撚硬，玻璃就脆到喊，一撞即碎。', shots: 4, color: '#efe4ba',
+    { title: '泰國小販', area: '午後夜市', description: '小販把口咁屌你老母咁硬，邦基一撞就散，冚家剷。', shots: 4, color: '#efe4ba',
       build: () => [...tower(755, 152, GROUND, 'glass'), enemy(755, 447, 'vendor'), enemy(755, 576), ...tower(1010, 132), enemy(1010, 447)] },
-    { title: '舞台要塌啦', area: '河畔小劇場', description: '成年泰國舞台藝人誇張返場，睇到眼冤，冚唪唥冧晒落嚟啦！', shots: 4, color: '#dce0ed',
+    { title: '一齊玩泰國雞', area: '脫衣舞俱樂部', description: '成年舞台藝人返場，睇到眼冤，屌你老母，冚唪唥冧晒落嚟啦！', shots: 4, color: '#dce0ed',
       build: () => [...tower(855, 265), ...tower(855, 145, 474, 'glass'), enemy(855, 576, 'performer'), enemy(855, 446), enemy(855, 316, 'performer'), enemy(1080, 576)] },
-    { title: '雙塔大混亂', area: '舊城停車場', description: '打中支點，等兩座塔一齊收工放假，仆街啦！', shots: 5, color: '#ead8c4',
+    { title: '雙子塔大混亂', area: '舊城停車場', description: '打中支點，等兩座塔一齊收工放假，屌你老母，真係猛。', shots: 5, color: '#ead8c4',
       build: () => [...tower(738, 132), ...tower(1033, 132, GROUND, 'glass'), ...tower(738, 106, 474, 'glass'), enemy(738, 316, 'vendor'), enemy(738, 576), enemy(1033, 446, 'performer'), enemy(1033, 576), enemy(900, 576)] },
     { title: '終極街坊大會', area: '邦基大道', description: '成條街嘅街坊都等緊你呢最後一鑊，唔好丟架呀柒頭！', shots: 5, color: '#cfe4d8',
       build: () => [...tower(808, 220), ...tower(808, 138, 474), ...tower(1080, 126, GROUND, 'glass'), enemy(808, 316, 'vendor'), enemy(808, 446, 'performer'), enemy(765, 576), enemy(855, 576), enemy(1080, 446, 'performer'), enemy(1080, 576)] }
